@@ -1,0 +1,87 @@
+﻿@{
+    ViewBag.Title = "Overall Gender Report";
+}
+
+@section head {
+    <style>
+
+    footer {
+        display: none;
+    }
+
+    main > h1 {
+       color: whitesmoke;
+    }
+
+    </style>
+}
+
+<div id="chart" style="width: 600px; height: 400px;"></div>
+
+<p style="color: whitesmoke;">
+    <a href="#" id="reload" style="color: whitesmoke;">Reload</a> |
+    <a href="#" id="download" download="OverallGenderReport.png" style="color: whitesmoke;">Download</a>
+</p>
+
+@section foot {
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
+    <script>
+        // Load chart library
+        google.charts.load('current', { packages: ['corechart'] });
+        google.charts.setOnLoadCallback(init);
+
+        // Initialize data table and chart
+        let dt, opt, cht;
+
+        function init() {
+            // Data table columns: Female and Male
+            dt = new google.visualization.DataTable();
+            dt.addColumn('string', 'Gender');
+            dt.addColumn('number', 'Count');
+
+            opt = {
+                title: 'Overall Gender By User',
+                fontName: 'Roboto',
+                fontSize: 16,
+                titleTextStyle: {
+                    fontSize: 20
+                },
+                chartArea: {
+                    width: '90%',
+                    height: '90%',
+                    top: 50,
+                    left: 50
+                },
+                pieHole: 0.15,
+                is3D: true,
+
+                // colors
+                colors: ['red', 'blue']
+            };
+
+            cht = new google.visualization.PieChart($('#chart')[0]);
+
+            $('#reload').click();
+        }
+
+        // Reload event
+        $('#reload').click(e => {
+            e.preventDefault();
+
+            const url = 'GenderInfo';
+            const param = {};
+
+            $.getJSON(url, param, data => {
+                dt.removeRows(0, dt.getNumberOfRows());
+                dt.addRows(data);
+                cht.draw(dt, opt);
+            });
+        });
+
+        // Download event
+        $('#download').click(e => {
+            e.target.href = cht.getImageURI();
+            e.target.download = 'OverallGenderReport' + '.png';
+        });
+    </script>
+}

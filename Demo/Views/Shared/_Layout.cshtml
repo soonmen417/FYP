@@ -1,0 +1,266 @@
+﻿@inject Helper hp
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title</title>
+    <link rel="shortcut icon" href="/images/tarchat.png">
+    <link rel="stylesheet" href="/css/pager.css">
+    <link rel="stylesheet" href="/css/app.css" asp-append-version="true">
+    <link href='https://fonts.googleapis.com/css?family=Cinzel Decorative' rel='stylesheet'>
+    @RenderSection("head", false)
+</head>
+<body>
+
+    <style>
+    .dropdown {
+        background-color: #008080;
+        color: #ff5e62;
+        display: flex;
+        position: relative;
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        top: 100%;
+        background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+        color: #ff5e62;
+        box-shadow: 0 8px 16px #008080;
+        z-index: 1;
+    }
+
+    .dropdown-content a:hover {
+        display: block;
+        background-color: black;
+    }
+
+    </style>
+
+    <div class="info">@Html.Raw(TempData["Info"])</div>
+
+    <header>
+        <img src="/images/chat2.png" alt="" style="border: none; width: 70px; height: auto;"> <h1 style="font-family: Cinzel Decorative; font-weight: bolder;"> <a href="/">TARCHAT</a></h1>
+
+        @if (User.Identity!.IsAuthenticated)
+        {
+            <div style="color: whitesmoke;">
+                @User.Identity.Name |
+                @if (User.IsInRole("S"))
+                {
+                    <text>Student</text>
+                }
+                @if (User.IsInRole("L"))  
+                { 
+                    <text>Lecturer</text>  
+                }
+                @if (User.IsInRole("SA"))
+                {
+                    <text>Super Admin</text>
+                }
+                @if (User.IsInRole("A"))
+                {
+                    <text>Admin</text>
+                }
+            </div>
+        }
+
+        @if (User.IsInRole("S"))
+        {
+            var photoURL = hp.GetUserPhotoURL();
+
+            if (photoURL != null)
+            {
+                <img src="/photos/@photoURL">
+            }
+        }
+
+        @if (User.IsInRole("L"))
+        {
+            var photoURL = hp.GetUserPhotoURL();
+
+            if (photoURL != null)
+            {
+                <img src="/photos/@photoURL">
+            }
+        }
+
+        @if (User.IsInRole("A"))
+        {
+            var photoURL = hp.GetUserPhotoURL();
+
+            if (photoURL != null)
+            {
+                <img src="/photos/@photoURL">
+            }
+        }
+    </header>
+
+    <nav>
+
+        @if (User.IsInRole("S"))
+        {
+            <a href="/">Homepage</a>
+            <a href="/Chat/ChatRoom">Discussion Room</a>
+            <a href="/Chat/EnterChat" style="margin-left: 74%;">Chat Room</a>
+            <div></div>
+            <div class="dropdown" >
+                <a href="#">Settings</a>
+                <div class="dropdown-content" style="right: 10%;">
+                    <a href="/Account/UpdateProfile">Update Profile</a>
+                    <a href="/Account/UpdatePassword">Update Password</a>
+                    <a href="/Account/Logout">Logout</a>
+                </div>
+            </div>
+        }
+
+        @if (User.IsInRole("L"))
+        {
+            <a href="/">Homepage</a>
+            <a href="/Chat/ChatRoom">Discussion Room</a>
+            <div></div>
+            <div class="dropdown" style="margin-left: 81%;">
+                <a href="#">Settings</a>
+                <div class="dropdown-content" style="right: 10%;">
+                    <a href="/Account/UpdateProfile">Update Profile</a>
+                    <a href="/Account/UpdatePassword">Update Password</a>
+                    <a href="/Account/Logout">Logout</a>
+                </div>
+            </div>
+        }
+
+        @if (User.IsInRole("SA"))
+        {
+
+            <a href="/">Homepage</a>
+            <div class="dropdown">
+                <a href="#">Data Report</a>
+                <div class="dropdown-content">
+                    <a href="/Chart/GenderReport">Overall Gender Report</a>
+                    <a href="/Chart/RegistrationReport">Overall User Registration Report</a>
+                </div>
+            </div>
+            
+            <div></div>
+            <div class="dropdown" style="margin-left: 83%;">
+                <a href="#">Settings</a>
+                <div class="dropdown-content" style="right: 10%;">
+                    <a href="/Account/SuperAdminMaintenance">User Maintenance</a>
+                    <a href="/Room/RoomMaintenance">Room Maintenance</a>
+                    <a href="/Account/Logout">Logout</a>
+                </div>
+            </div>
+
+        }
+
+        @if (User.IsInRole("A"))
+        {
+
+            <a href="/">Homepage</a>
+            <a href="/Account/Maintenance">User Maintenance</a>
+            <a href="/Room/RoomMaintenance">Room Maintenance</a>
+
+            <div></div>
+
+            <div class="dropdown" style="margin-left: 70%;">
+                <a href="#">Settings</a>
+                <div class="dropdown-content" style="right: 10%;">
+                    <a href="/Account/UpdateProfile">Update Profile</a>
+                    <a href="/Account/UpdatePassword">Update Password</a>
+                    <a href="/Account/Logout">Logout</a>
+                </div>
+            </div>
+        }
+
+
+        @if (!User.Identity.IsAuthenticated)
+        {
+            <a href="/">Homepage</a>
+            <div></div>
+            <a href="/Account/ResetPassword">Reset Password</a>
+            <a href="/Account/Login">Login</a>
+        }
+
+
+    </nav>
+
+    <main>
+        <h1>@ViewBag.Title</h1>
+        @RenderBody()
+    </main>
+
+    <footer>
+        <div class="col">
+            <div class="content">
+                <h3>TarChat</h3>
+                <pre>TarChat is a freeware, cross-platform, centralized
+instant messaging (IM) and voice-over-IP (VoIP)
+service owned by TAR UMT. It allows users to
+send text, voice messages and video messages,
+make voice and video calls, and share images,
+documents, user locations, and other content.</pre>
+            </div>
+            <div class="content">
+                <h3>Trusted By</h3>
+                <img src="/images/certificate.png" alt="">
+            </div>
+
+        </div>
+
+        <div class="col">
+            <div class="content">
+                <h3>TarChat (2331567-W)</h3>
+                <p>TAR UMT, Jalan Genting Kelang, Setapak,</p>
+                <p>53300 Kuala Lumpur,</p>
+                <p>Federal Territory of Kuala Lumpur</p>
+                <p></p>
+            </div>
+            <div class="content">
+                <h3>Contact Us</h3>
+                <span>Phone : </span>
+                <a href="tel:+6012-4578451">+6012-4578451</a> <br>
+                <span>Email : </span>
+                <a href="mailto:mobileass1234@gmail.com">tarchat1234@gmail.com</a>
+            </div>
+            <br>
+            <div class="content">
+                <h3>Our LOGO</h3>
+                <img src="/images/chat2.png" alt="">
+            </div>
+        </div>
+        <div class="col">
+            <div class="content">
+                <h3>About</h3>
+                <a href="/Home/OurLocation"><p>Our Location</p></a>
+                <a href="/Home/AboutUs"><p>About US</p></a>
+                <p>FAQ</p>
+                <h3>Help</h3>
+                <p>Terms & Conditions</p>
+                <p>Data Protection Policy</p>
+
+                <p>Return Policy</p>
+            </div>
+        </div>
+        <div class="col">
+            <div class="content">
+                <h3>Follow Us On</h3>
+                <img src="/images/fb.png" alt="" style="cursor: pointer"> <img src="/images/ig.png" alt="" style="cursor: pointer"> <img src="/images/whatsapp.png" alt="" style="cursor: pointer">
+            </div>
+            <div class="content">
+                <h3>Our Location</h3>
+                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d15934.381943540724!2d101.71822764635539!3d3.20045449679136!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31cc3843bfb6a031%3A0x2dc5e067aae3ab84!2sTunku%20Abdul%20Rahman%20University%20of%20Management%20and%20Technology%20(TAR%20UMT)!5e0!3m2!1sen!2smy!4v1701372165417!5m2!1sen!2smy" width="600" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+            </div>
+        </div>
+
+    </footer>
+
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/jquery.unobtrusive-ajax.min.js"></script>
+    <script src="/js/jquery.validate.min.js"></script>
+    <script src="/js/jquery.validate.unobtrusive.min.js"></script>
+    <script src="/js/app.js" asp-append-version="true"></script>
+    @RenderSection("foot", false)
+</body>
+</html>

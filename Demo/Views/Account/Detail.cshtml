@@ -1,0 +1,101 @@
+﻿@inject Helper hp
+@model User
+
+@{
+    ViewBag.Title = "User Details";
+}
+
+@section head {
+    <style>
+
+    footer {
+        display: none;
+    }
+
+    main > h1 {
+        color: whitesmoke;
+    }
+
+    #btn {
+        transition: all .5s ease;
+        width: 5%;
+        border-radius: 30px;
+        color: #008080;
+        font-weight: 600;
+        background-color: #fff;
+        border: 1px solid #008080;
+        text-transform: uppercase;
+        cursor: pointer;
+    }
+
+    #btn:hover, #btn:focus {
+        background-color: #008080;
+        color: #fff;
+    }
+
+    </style>
+}
+
+<script>
+    var programNameMap = {
+        'CS': 'Computer Science',
+        'IS': 'Information Systems',
+        'EE': 'Electrical Engineering Systems',
+        'BE': 'Biomedical Engineering Systems',
+        'AF': 'Accounting and Finance Systems',
+        'BM': 'Business Management Systems',
+
+    };
+
+    function getProgramName(programCode) {
+        return programNameMap[programCode] || 'Unknown Program';
+    }
+</script>
+
+<p>
+    <img src="/photos/@Model.PhotoURL">
+</p>
+
+<table class="table detail">
+    <tr>
+        <th>Email</th>
+        <td>@Model.Email</td>
+    </tr>
+    <tr>
+        <th>Name</th>
+        <td>@Model.Name</td>
+    </tr>
+    <tr>
+        <th>Gender</th>
+        <td>@(Model.Gender == "M" ? "Male" : "Female")</td>
+    </tr>
+    <tr>
+        <th>Phone Number</th>
+        <td>@Model.PhoneNumber</td>
+    </tr>
+    <tr>
+        <th>Address</th>
+        <td>@Model.Address</td>
+    </tr>
+
+    @if (Model.Role == "S") 
+    {
+        <tr>
+            <th>Faculty</th>
+            <td>@Model.Faculty_Code</td>
+        </tr>
+        <tr>
+            <th>Programme</th>
+            <td><script>document.write(getProgramName('@Model.Programme_Code'));</script></td>
+        </tr>
+        <tr>
+            <th>Intake Year</th>
+            <td>@Model.Year</td>
+        </tr>
+    }
+</table>
+
+<p>
+    <button data-get="/" id="btn">Index</button>
+    <button data-back id="btn">Back</button>
+</p>

@@ -1,0 +1,274 @@
+﻿@model RegisterVM
+
+@{
+    ViewBag.Title = "Register Account";
+}
+
+@section head {
+    <style>
+
+        header, footer, nav {
+            display: none;
+        }
+
+        main > h1 {
+            display: none;
+        }
+
+        .font-yantra {
+            font-family: 'Yantramanav Medium';
+        }
+
+        body {
+            background: linear-gradient(to left, #0f2027, #203a43, #2c5364);
+        }
+
+        .login-form {
+            position: absolute;
+            top: 70%;
+            left: 50%;
+            transform: translate(-50%,-50%);
+            width: 60%;
+            max-width: 450px;
+            padding: 20px 30px;
+            box-shadow: 0px 5px 10px #999;
+            border-radius: 20px;
+            background-color: #d3d3d3;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .login-form .form-input {
+            margin: 5px 0px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #register-btn{
+            transition: all .5s ease;
+            width: 170%;
+            border-radius: 30px;
+            color: #008080;
+            font-weight: 600;
+            background-color: #fff;
+            border: 1px solid #008080;
+            text-transform: uppercase;
+            margin-top: 1.5em;
+            margin-left: -186px;
+            cursor: pointer;
+        }
+
+        #register-btn:hover, #register-btn:focus {
+            background-color: #008080;
+            color: #fff;
+        }
+
+        #btn {
+            transition: all .5s ease;
+            width: 170%;
+            border-radius: 30px;
+            color: #008080;
+            font-weight: 600;
+            background-color: #fff;
+            border: 1px solid #008080;
+            text-transform: uppercase;
+            margin-top: 2.5em;
+            margin-left: -186px;
+            cursor: pointer;
+        }
+
+        #btn:hover, #btn:focus {
+            background-color: #008080;
+            color: #fff;
+        }
+
+        .word > h2 {
+            color: #008080;
+            margin-left: -55px;
+            font-weight: bolder;
+        }
+
+    </style>
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
+
+<form class="form" method="post" enctype="multipart/form-data">
+    <div class="login-form">
+    <div asp-validation-summary="ModelOnly"></div>
+
+        <div>
+            <a href="/Account/Login"><i class="fa fa-angle-double-left" style="font-size:36px"></i></a>
+        </div>
+
+        <div class="word">
+            <h2>Register</h2>
+        </div>
+
+        <div class="form-input">
+            <input asp-for="Email" autofocus placeholder="Email">
+            <span asp-validation-for="Email"></span>
+        </div>
+
+        <div class="form-input">
+            <input asp-for="Name" placeholder="Name">
+            <span asp-validation-for="Name"></span>
+        </div>
+
+
+        <label asp-for="Gender" style="color: #008080;"></label><br>
+        <div>
+            <label style="color: #008080;"><input asp-for="Gender" type="radio" value="F">Female</label>
+            <label style ="color: #008080;"><input asp-for="Gender" type="radio" value="M">Male</label>
+        </div>
+        <span asp-validation-for="Gender"></span>
+
+        <div class="form-input">
+            <input asp-for="Phone" placeholder="Phone">
+            <span asp-validation-for="Phone"></span>
+        </div>
+
+        <div class="form-input">
+            <label asp-for="Address"></label>
+            <div>
+                <textarea input asp-for="Address"></textarea>
+            </div>
+            <span asp-validation-for="Address"></span>
+        </div>
+
+        <div>
+        <label asp-for="Faculty" style="color: #008080;"></label> <br>
+        <div>
+            <select id="facultyDropdown" asp-for="Faculty" class="form-control">
+                <option></option>
+                <option value="FOCS">FOCS</option>
+                <option value="FAFB">FAFB</option>
+                <option value="FOBE">FOBE</option>
+            </select>
+        </div>
+        <span asp-validation-for="Faculty"></span>
+        </div>
+
+        <div>
+        <label asp-for="Programme" style="color: #008080;"></label> <br>
+        <div>
+            <select id="programmeDropdown" asp-for="Programme" class="form-control">
+            </select>
+        </div>
+        <span asp-validation-for="Programme"></span>
+        </div>
+
+        <div>
+        <label asp-for="IntakeYear" style="color: #008080;"></label> <br>
+        <div>
+            <select id="intakeDropdown" asp-for="IntakeYear" class="form-control">
+                <option></option>
+                <option value="Y1">Y1</option>
+                <option value="Y2">Y2</option>
+                <option value="Y3">Y3</option>
+            </select>
+        </div>
+        <span asp-validation-for="IntakeYear"></span>
+        </div> <br>
+
+        <div class="form-input">
+            <div>
+                <input asp-for="Password" autocomplete="current-password" required="" id="id_password" placeholder="Password">
+                <i class="far fa-eye" id="togglePassword" style="margin: 16px 0px 25px -25px; cursor: pointer; position: absolute"></i>
+            </div>
+            <span asp-validation-for="Password"></span>
+        </div>
+
+        <div class="form-input">
+            <div>
+                <input asp-for="Confirm" autocomplete="current-password2" required="" id="id_password2" placeholder="Confirm">
+                <i class="far fa-eye" id="togglePassword2" style="margin: 16px 0px 25px -25px; cursor: pointer; position: absolute"></i>
+            </div>
+            <span asp-validation-for="Confirm"></span>
+        </div>
+
+
+        <label asp-for="Photo" style="color: #008080;"></label><br>
+        <div>
+            <label class="upload">
+                <small style="color: #008080;">Select Photo...</small>
+            <input asp-for="Photo" accept="image/jpeg,image/png" hidden>
+            <img src="/images/photo.jpg">
+        </label>
+        </div>
+        <span asp-validation-for="Photo"></span>
+    <br><br>
+    <section>
+        <button type="submit" id="register-btn">Register</button>
+        <br>
+        <button type="reset" id="btn">Reset</button>
+    </section>
+    
+    </div>
+
+</form>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $('#facultyDropdown').change(function () {
+            var selectedFaculty = $(this).val();
+
+            updateProgrammeDropdown(selectedFaculty);
+        });
+    });
+
+    function updateProgrammeDropdown(selectedFaculty) {
+        var programmeDropdown = $('#programmeDropdown');
+
+        programmeDropdown.empty();
+
+        switch (selectedFaculty) {
+            case 'FOCS':
+                programmeDropdown.append('<option value="CS">Computer Science</option>');
+                programmeDropdown.append('<option value="IS">Information Systems</option>');
+                break;
+            case 'FAFB':
+                programmeDropdown.append('<option value="AF">Accounting and Finance</option>');
+                programmeDropdown.append('<option value="BM">Business Management</option>');
+                break;
+            case 'FOBE':
+                programmeDropdown.append('<option value="BE">Biomedical Engineering</option>');
+                programmeDropdown.append('<option value="EE">Electrical Engineering</option>');
+                break;
+            default:
+                break;
+        }
+    }
+</script>
+
+<script>
+    const togglePassword = document.querySelector('#togglePassword');
+    const password = document.querySelector('#id_password');
+
+    togglePassword.addEventListener('click', function (e) {
+        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+        password.setAttribute('type', type);
+        this.classList.toggle('fa-eye-slash');
+    })
+</script>
+
+<script>
+    const togglePassword2 = document.querySelector('#togglePassword2');
+    const password2 = document.querySelector('#id_password2');
+
+    togglePassword2.addEventListener('click', function (e) {
+        const type = password2.getAttribute('type') === 'password' ? 'text' : 'password';
+        password2.setAttribute('type', type);
+
+        this.classList.toggle('fa-eye-slash');
+    })
+</script>
+
+@section foot {
+    <script>
+        $.validator.setDefaults({ ignore: '' });
+    </script>
+}

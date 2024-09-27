@@ -1,0 +1,37 @@
+﻿@{
+    ViewBag.Title = "Account | Access Denied";
+}
+
+@section head {
+    <style>
+        footer {
+            display: none;
+        }
+
+        main > h1 {
+            color: whitesmoke;
+        }
+
+        #btn {
+            transition: all .5s ease;
+            width: 12%;
+            border-radius: 30px;
+            color: #008080;
+            font-weight: 600;
+            background-color: #fff;
+            border: 1px solid #008080;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+
+        #btn:hover, #btn:focus {
+            background-color: #008080;
+            color: #fff;
+        }
+    </style>
+}
+
+<p style="color: whitesmoke;">You are <b>NOT AUTHORIZED</b> to access this page.</p>
+<p>
+    <button data-get="/" id="btn">Back To Home Page</button>
+</p>

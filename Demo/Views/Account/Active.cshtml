@@ -1,0 +1,86 @@
+﻿@model SecuirtyCodeVM
+
+@{
+    ViewBag.Title = "SMS Activation";
+}
+
+@section head {
+    <style>
+
+        header, footer {
+            display: none;
+        }
+
+        main > h1 {
+            display: none;
+        }
+
+        body {
+            background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+        }
+
+        #btn {
+            transition: all .5s ease;
+            border-radius: 30px;
+            color: #008080;
+            font-weight: 600;
+            background-color: #fff;
+            border: 1px solid #008080;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+
+        #btn:hover, #btn:focus {
+             background-color: #008080;
+             color: #fff;
+        }
+
+        #reset {
+            transition: all .5s ease;
+            border-radius: 30px;
+            color: #008080;
+            font-weight: 600;
+            background-color: #fff;
+            border: 1px solid #008080;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+
+        #reset:hover, #reset:focus {
+            background-color: #008080;
+            color: #fff;
+        }
+
+    </style>
+}
+
+<form class="form" method="post">
+    <div class="login-form">
+    <div asp-validation-summary="ModelOnly"></div>
+
+    @Html.HiddenFor(m => m.Email)
+    @Html.HiddenFor(m => m.Phone)
+
+    <div class="form-input">
+    <label asp-for="Email"></label>
+    <b>@Model.Email</b>
+    <span asp-validation-for="Email"></span>
+    </div>
+    <br>
+    <div class="form-input">
+    <label asp-for="Phone"></label>
+    <b>@Model.Phone</b>
+    <span asp-validation-for="Phone"></span>
+    </div>
+
+    <div class="form-input">
+    <input asp-for="SecurityCode" placeholder="Security Code">
+    <span asp-validation-for="SecurityCode"></span>
+    </div>
+
+    <section>
+        <button id="btn">Active</button>
+        <button type="reset" id="reset">Reset</button>
+    </section>
+    </div>
+</form>

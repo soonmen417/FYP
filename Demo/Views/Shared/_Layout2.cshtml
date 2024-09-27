@@ -1,0 +1,133 @@
+﻿@inject Helper hp
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title</title>
+    <link rel="shortcut icon" href="/images/tarchat.png">
+    <link rel="stylesheet" href="/css/pager.css">
+    <link rel="stylesheet" href="/css/app.css" asp-append-version="true">
+    <link href='https://fonts.googleapis.com/css?family=Cinzel Decorative' rel='stylesheet'>
+    @RenderSection("head", false)
+</head>
+<body>
+
+    <style>
+    .dropdown {
+        background-color: #008080;
+        color: #ff5e62;
+        display: flex;
+        position: relative; 
+    }
+
+    .dropdown-content {
+        display: none;
+        position: absolute;
+        top: 100%; 
+        background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+        color: #ff5e62;
+        box-shadow: 0 8px 16px #008080;
+        z-index: 1;
+    }
+
+    .dropdown-content a:hover {
+        display: block;
+        background-color: black;
+    }
+
+    </style>
+
+    <div class="info">@Html.Raw(TempData["Info"])</div>
+
+    <nav>
+
+        @if (User.IsInRole("S"))
+        {
+            <a href="/">Homepage</a>
+            <a href="/Chat/ChatRoom">Discussion Room</a>
+            <a href="/Chat/EnterChat" style="margin-left: 74%;">Chat Room</a>
+            <div></div>
+            <div class="dropdown" >
+                <a href="#">Settings</a>
+                <div class="dropdown-content" style="right: 10%;">
+                    <a href="/Account/UpdateProfile">Update Profile</a>
+                    <a href="/Account/UpdatePassword">Update Password</a>
+                    <a href="/Account/Logout">Logout</a>
+                </div>
+            </div>
+        }
+
+        @if (User.IsInRole("L"))
+        {
+            <a href="/">Homepage</a>
+            <a href="/Chat/ChatRoom">Discussion Room</a>
+            <div></div>
+            <div class="dropdown" style="margin-left: 81%;">
+                <a href="#">Settings</a>
+                <div class="dropdown-content" style="right: 10%;">
+                    <a href="/Account/UpdateProfile">Update Profile</a>
+                    <a href="/Account/UpdatePassword">Update Password</a>
+                    <a href="/Account/Logout">Logout</a>
+                </div>
+            </div>
+        }
+
+        @if (User.IsInRole("SA"))
+        {
+
+            <a href="/">Homepage</a>
+            <div class="dropdown">
+                <a href="#">Data Report</a>
+                <div class="dropdown-content">
+                    <a href="/Chart/GenderReport">Overall Gender Report</a>
+                    <a href="/Chart/RegistrationReport">Overall User Registration Report</a>
+                </div>
+            </div>
+            
+            <div></div>
+            <div class="dropdown" style="margin-left: 83%;">
+                <a href="#">Settings</a>
+                <div class="dropdown-content" style="right: 10%;">
+                    <a href="/Account/SuperAdminMaintenance">User Maintenance</a>
+                    <a href="/Room/RoomMaintenance">Room Maintenance</a>
+                    <a href="/Account/Logout">Logout</a>
+                </div>
+            </div>
+
+        }
+
+        @if (User.IsInRole("A"))
+        {
+
+            <a href="/">Homepage</a>
+
+            <div></div>
+
+            <div class="dropdown" style="margin-left: 70%;">
+                <a href="#">Settings</a>
+                <div class="dropdown-content" style="right: 10%;">
+                    <a href="/Account/Maintenance">User Maintenance</a>
+                    <a href="/Room/RoomMaintenance">Room Maintenance</a>
+                    <a href="/Account/UpdateProfile">Update Profile</a>
+                    <a href="/Account/Logout">Logout</a>
+                </div>
+            </div>
+        }
+
+    </nav>
+
+    <main>
+        <h1>@ViewBag.Title</h1>
+        @RenderBody()
+    </main>
+
+    <script src="/js/jquery.min.js"></script>
+    <script src="/js/jquery.unobtrusive-ajax.min.js"></script>
+    <script src="/js/jquery.validate.min.js"></script>
+    <script src="/js/jquery.validate.unobtrusive.min.js"></script>
+    <script src="/js/app.js" asp-append-version="true"></script>
+    @RenderSection("foot", false)
+</body>
+</html>

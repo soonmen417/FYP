@@ -1,0 +1,119 @@
+﻿@model LoginVM
+
+@{
+    ViewBag.Title = "Login Account";
+}
+
+
+@section head {
+    <style>
+
+        header, footer, nav{
+            display: none;
+        }
+
+        main > h1 {
+            display: none;
+        }
+
+        .font-yantra {
+            font-family: 'Yantramanav Medium';
+        }
+
+        body {
+            background: linear-gradient(to left, #0f2027, #203a43, #2c5364);
+        }
+
+    </style>
+}
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Trirong">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<form class="form" method="post">
+    <div class="login-form" style="margin-top: -10px;">
+        <div asp-validation-summary="ModelOnly"></div>
+
+        <div>
+            <a href="/Home/Index"><i class="fa fa-angle-double-left" style="font-size:36px"></i></a>
+        </div>
+
+        <div>
+            <img src="/images/chat.png" style="max-width: 30%; height: auto; margin-left: 155px; position: relative;">
+        </div>
+
+        <div class="row">
+            <h2>Log In</h2>
+        </div>
+
+        <div class="form-input">
+            <input asp-for="Email" placeholder="Email">
+            <span asp-validation-for="Email"></span>
+        </div>
+        <br>
+        <div class="form-input">
+            <div>
+                <input asp-for="Password" autocomplete="current-password" required="" id="id_password" placeholder="Password">
+                <i class="far fa-eye" id="togglePassword" style="margin: 10px 20px 25px -22px; cursor: pointer; position: absolute"></i>
+            </div>
+            <span asp-validation-for="Password"></span>
+        </div>
+        <br>
+        <div>
+            <label style="color: #008080;">
+                <input asp-for="RememberMe" style="cursor: pointer;">
+                Remember Me
+            </label>
+            <label class="reset-password">
+                <a href="/Account/ResetPassword">Forgot Password?</a>
+            </label>
+
+
+        </div>
+
+        <br>
+
+        <dnt-captcha asp-captcha-generator-max="30"
+                     asp-captcha-generator-min="1"
+                     asp-captcha-generator-language="English"
+                     asp-captcha-generator-display-mode="SumOfTwoNumbersToWords"
+                     asp-use-relative-urls="true"
+                     asp-placeholder="Enter captcha code"
+                     asp-font-name="Tahoma"
+                     asp-font-size="20"
+                     asp-fore-color="red"
+                     asp-back-color="#FCF6F5FF"
+                     asp-text-box-class="form-control"
+                     asp-text-box-template="<div class='input-group'><span class='input-group-text'><span class='bi-lock'></span></span>{0}</div>"
+                     asp-validation-message-class="text-danger"
+                     asp-refresh-button-class="fas fa-sync"
+                     asp-show-refresh-button="true"
+                     asp-dir="ltr" />
+
+        <br>
+        <section>
+            <button type="reset" id="reset-btn">Reset</button>
+            <button type="submit" id="login-btn">Login</button>
+            <p style="margin-left:220px;">OR</p>
+            <button data-get="/Account/Register" class="register" style="cursor: pointer">Register now</button>
+        </section>
+        <br>
+    </div>
+</form>
+
+
+<script>
+    const togglePassword = document.querySelector('#togglePassword');
+    const password = document.querySelector('#id_password');
+
+    togglePassword.addEventListener('click', function (e) {
+        // toggle the type attribute
+        const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+        password.setAttribute('type', type);
+        // toggle the eye slash icon
+        this.classList.toggle('fa-eye-slash');
+    });
+</script>
+
+
+

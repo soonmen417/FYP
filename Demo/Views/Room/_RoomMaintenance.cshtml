@@ -1,0 +1,94 @@
+﻿@using X.PagedList;
+@using X.PagedList.Mvc.Core;
+@using X.PagedList.Web.Common;
+@model IPagedList<Room>
+
+@{
+    string[] fields = { "No", "Room ID", "Name", "Description", "Type", "Created Time", "Action" };
+    var i = 1;
+}
+
+@* TODO *@
+<form data-ajax="true"
+      data-ajax-update="#target"
+      data-ajax-loading="#loader"
+      data-ajax-success="success">
+    <button type="button" class="btn1" data-get="/Room/RoomInsert">Add New Room</button> <br><br>
+    @Html.TextBox("name", null, new { autofocus = "", type = "search" })
+    @Html.Hidden("sort")
+    @Html.Hidden("dir")
+    <img src="/images/loader.gif" id="loader" style="display: none">
+</form>
+
+<p style="color: whitesmoke;">
+
+    @Model.Count of @Model.TotalItemCount record(s) |
+    Page @Model.PageNumber of @Model.PageCount
+</p>
+
+<table class="table">
+    <tr>
+        @foreach (var f in fields)
+        {
+            string d = "asc";
+            string c = "";
+
+            if (f == ViewBag.Sort)
+            {
+                d = ViewBag.Dir == "des" ? "asc" : "des";
+                c = ViewBag.Dir;
+            }
+
+            <th>
+                @* TODO *@
+                <a data-ajax="true"
+                   data-ajax-update="#target"
+                   data-ajax-loading="#loader"
+                   data-ajax-success="success"
+                   href="?name=@ViewBag.Name&sort=@f&dir=@d" class="@c">@f</a>
+            </th>
+        }
+    </tr>
+
+    @foreach (var r in Model)
+    {
+        <tr class="cust-list">
+            <td>@i</td>
+            <td>@r.RoomId</td>
+            <td>@r.Room_Name</td>
+            <td>@r.Room_Description</td>
+            <td>@r.Room_Type</td>
+            <td>@r.Room_CreatedTime</td>
+
+            <td>
+                <button data-get="/Room/RoomDetail?roomid=@r.RoomId" style="cursor: pointer">View</button>
+                <button data-get="/Room/EditRoom?roomid=@r.RoomId" style="cursor: pointer">Edit</button>
+                <button data-get="/Room/DeleteRoom" style="cursor: pointer">Delete</button>
+            </td>
+        </tr>
+        i++;
+    }
+</table>
+
+@{
+    var options = PagedListRenderOptions.ClassicPlusFirstAndLast;
+    options.LinkToFirstPageFormat = "First";
+    options.LinkToLastPageFormat = "Last";
+    options.LinkToPreviousPageFormat = "Previous";
+    options.LinkToNextPageFormat = "Next";
+
+    // TODO
+    var ajaxOptions = new AjaxOptions
+            {
+                HttpMethod = "get",
+                UpdateTargetId = "target",
+                LoadingElementId = "#loader",
+                OnSuccess = "success"
+            };
+}
+
+@Html.PagedListPager(
+                        Model,
+                        p => $"?name={ViewBag.Name}&sort={ViewBag.Sort}&dir={ViewBag.Dir}&page={p}",
+                        PagedListRenderOptions.EnableUnobtrusiveAjaxReplacing(options, ajaxOptions) // TODO
+                    )

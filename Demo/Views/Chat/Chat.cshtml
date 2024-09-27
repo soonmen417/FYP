@@ -1,0 +1,1468 @@
+﻿@model ChatVM
+
+@{
+    ViewBag.Title = "Chat Room";
+    Layout = "/Views/Shared/_Layout2.cshtml";
+}
+
+@section head {
+    <style>
+
+        main > h1 {
+            display: none;
+        }
+
+    </style>
+}
+
+<script>
+    var facultyCode = '@ViewBag.FacultyCode';
+</script>
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="images/chat.png" rel="shortcut icon">
+    <link href='https://unpkg.com/css.gg@2.0.0/icons/css/dark-mode.css' rel='stylesheet'>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        main {
+            padding: 0px 50px;
+        }
+
+        .image {
+            max-width: 200px;
+            max-height: 200px;
+            border: 1px solid #999;
+            cursor: pointer;
+        }
+
+        .image:fullscreen {
+            object-fit: scale-down !important;
+            border: none !important;
+            background: #000 !important;
+        }
+
+        .active {
+            outline: 5px dashed red;
+            outline-offset: -5px;
+        }
+
+        .emoji {
+            font-size: 1.5rem;
+            margin: 5px;
+            cursor: pointer;
+        }
+
+        #emoji:hover {
+            cursor: pointer;
+            background-color: #666;
+        }
+
+        #emoji-bar {
+            display: none;
+            flex-wrap: wrap;
+            position: fixed;
+            bottom: 8vh;
+            left: 56%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        #dialog {
+            border: 1px solid #999;
+            border-radius: 5px;
+            padding: 5px;
+        }
+
+        #dialog::backdrop {
+            background: #0009;
+        }
+
+        #container {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        #container .image {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+        }
+
+        #dialog form {
+            display: block;
+            text-align: right;
+            margin-bottom: 5px;
+        }
+
+        /* Light mode styles */
+        body {
+            background: #f0f0f0;
+            color: black;
+        }
+
+        /* Dark mode styles */
+        .dark-mode {
+            background: #111;
+        }
+
+        .dark-mode header {
+            color: whitesmoke;
+        }
+
+        #darkMode {
+            background-color: transparent;
+            color: white;
+            border: none;
+            margin-right: 10px;
+        }
+
+        #chatWindow {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        #backgroundImage {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.7;
+            z-index: -1;
+        }
+
+        .custom-file-upload input[type="file"] {
+            display: none;
+        }
+
+        .custom-file-upload {
+            border: 1px solid;
+            display: inline-block;
+            padding: 6px 12px;
+            cursor: pointer;
+            background-color: rgb(255, 163, 26);
+            color: black;
+            border-radius: 4px;
+        }
+
+        .custom-file-upload:hover {
+            background-color: rgb(250, 176, 66);
+        }
+
+        .custom-file-upload input[type="file"] {
+            display: none !important;
+        }
+
+        #video {
+            width: 300px;
+            height: 300px;
+            margin-left: 350px;
+            bottom: 400px;
+            position: fixed;
+        }
+
+        .time {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            font-size: 90%;
+        }
+
+        button {
+            transition: all .5s ease;
+            font-weight: 600;
+            color: #008080;
+            background-color: #fff;
+            border-radius: 30px;
+            border: 1px solid #008080;
+            cursor: pointer;
+        }
+
+        button:hover, button:focus {
+            background-color: #008080;
+            color: #fff;
+        }
+
+        #message {
+            background-color: #1b1b1b;
+            color: white;
+            border: 1px solid;
+            border-radius: 10px;
+        }
+
+        ::placeholder {
+            font-style: italic;
+        }
+
+        #chatContainer {
+            width: 100%;
+            height: calc(100vh - 150px);
+            overflow-y: auto;
+            background-color: transparent;
+            padding: 10px;
+            font-family: 'Arial', sans-serif;
+            position: relative;
+            padding-bottom: 60px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Hide the scrollbar for webkit browsers */
+        #chatContainer::-webkit-scrollbar {
+            width: 0; 
+        }
+
+        #chatContainer::-webkit-scrollbar-track {
+            background-color: transparent;
+        }
+
+        #chatContainer::-webkit-scrollbar-thumb {
+            background-color: transparent;
+        }
+
+
+        .chatMessage {
+            display: flex;
+            flex-direction: column;
+            max-width: 80%;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .chatMessage.self {
+            background-color: turquoise; 
+            align-items: flex-end;
+            align-self: flex-end; 
+        }
+
+        .chatMessage.other {
+            background-color: cornflowerblue; 
+            align-items: flex-start;
+            align-self: flex-start; 
+        }
+
+        .chatMessage p {
+            margin: 0;
+            line-height: 1.5;
+        }
+
+        chatMessage {
+            margin: 0;
+            line-height: 1.5;
+            font-weight: bold;
+        }
+
+        .timestamp {
+            font-size: 0.75rem;
+            color: #999;
+            text-align: right;
+        }
+
+        .senderName {
+            font-weight: bold;
+        }
+
+        .messageWithTimestamp {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dateTime {
+            align-self: stretch; 
+            text-align: right; 
+            font-size: 0.75rem;
+            color: #00204a;
+            margin-top: 5px;
+        }
+
+        .chatMessage.other .dateTime {
+            text-align: left; 
+        }
+
+        .dropdown-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .dropdown-icon {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0; 
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+        }
+
+        .dropdown-content.show {
+            display: block;
+            background: transparent;
+        }
+
+        .delete-option {
+            color: black;
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            background: transparent;
+            border: none;
+            position: absolute;
+            margin-left: 90px;
+            font-weight: bold;
+            opacity: 0.85;
+        }
+
+        .delete-option.show {
+            display: block;
+        }
+
+        .delete-option:hover {
+            background-color: whitesmoke;
+            color: black;
+        }
+
+        header {
+            background: transparent; 
+            padding: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        footer {
+            background-color: rgba(255, 255, 255, 0); 
+            display: flex;
+            justify-content: space-between; 
+            align-items: center;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+        }
+
+        footer form {
+            display: flex;
+            width: 100%;
+            align-items: center;
+            margin: 0;
+        }
+
+        footer input {
+            flex: 1; 
+            margin: 10px 5px; 
+            height: 20px;
+            padding: 5px;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>TarChat</h1>
+        <input type="file" id="backgroundImageInput" hidden accept="image/*">
+        <button type="button" style="margin-right: 5px;"><i class="fa fa-camera" id="startButton"></i></button>
+        <button id="selectBackgroundImageBtn" style="margin-right: 5px;"><i class="fas fa-image"></i></button>
+        <button type="button" id="resetBackgroundImage" style="margin-right: 100px;">
+            <i class="fa fa-refresh"
+               aria-hidden="true"></i>
+        </button>
+        <button type="button" id="darkMode" onclick="toggleDarkMode()"><i class="gg-dark-mode"></i></button>
+        <div><b>🟢Online</b> = <b id="count">0</b></div>
+    </header>
+    <br>
+    <br>
+    <div id="chatContainer">
+        <main>
+            <img id="backgroundImage">
+            <video id="video" autoplay></video>
+        </main>
+
+        <footer>
+            <form autocomplete="off">
+
+                <input type="text" id="message" placeholder="Enter Message" autofocus>
+                <button type="button" id="emoji-btn"><i class='far fa-smile'></i></button>
+                <div id="emoji-bar">
+                    <span class="emoji" id="emoji" data-emoji="😁">😁</span>
+                    <span class="emoji" id="emoji" data-emoji="😂">😂</span>
+                    <span class="emoji" id="emoji" data-emoji="😅">😅</span>
+                    <span class="emoji" id="emoji" data-emoji="😏">😏</span>
+                    <span class="emoji" id="emoji" data-emoji="😉">😉</span><br>
+                    <span class="emoji" id="emoji" data-emoji="😥">😥</span>
+                    <span class="emoji" id="emoji" data-emoji="😪">😪</span>
+                    <span class="emoji" id="emoji" data-emoji="😓">😓</span>
+                    <span class="emoji" id="emoji" data-emoji="😭">😭</span>
+                    <span class="emoji" id="emoji" data-emoji="😎">😎</span><br>
+                    <span class="emoji" id="emoji" data-emoji="🥰">🥰</span>
+                    <span class="emoji" id="emoji" data-emoji="😍">😍</span>
+                    <span class="emoji" id="emoji" data-emoji="🤗">🤗</span>
+                    <span class="emoji" id="emoji" data-emoji="🙄">🙄</span>
+                    <span class="emoji" id="emoji" data-emoji="🤨">🤨</span><br>
+                    <span class="emoji" id="emoji" data-emoji="😐">😐</span>
+                    <span class="emoji" id="emoji" data-emoji="😶">😶</span>
+                    <span class="emoji" id="emoji" data-emoji="😴">😴</span>
+                    <span class="emoji" id="emoji" data-emoji="🥱">🥱</span>
+                    <span class="emoji" id="emoji" data-emoji="🤒">🤒</span><br>
+                    <span class="emoji" id="emoji" data-emoji="🤮">🤮</span>
+                    <span class="emoji" id="emoji" data-emoji="😱">😱</span>
+                    <span class="emoji" id="emoji" data-emoji="🤬">🤬</span>
+                    <span class="emoji" id="emoji" data-emoji="🥵">🥵</span>
+                    <span class="emoji" id="emoji" data-emoji="🤡">🤡</span><br>
+                </div>
+                <button type="button" id="voice-icon"><i class="fa fa-microphone"></i></button>
+                <button type="button" id="startRecord">Start Recording</button>
+                <button type="button" id="stopRecord" disabled>Stop Recording</button>
+                <button type="button" id="image">Image</button>
+                <button type="button" id="gallery">Gallery</button>
+                <button type="button" id="captureButton">Capture</button>
+                <button type="button" id="recordButton">Record Video</button>
+                <canvas id="imageCanvas" style="display:none;"></canvas>
+                <button type="button" id="sendEditedImage" style="display:none;">Send Image</button>
+                <button type="button" id="shareScreenBtn">Share Screen</button>
+                <canvas id="canvas" style="display: none;"></canvas>
+                <button type="button" id="leave">Leave</button>
+                <input type="file" id="file" accept="image/*" hidden multiple>
+            </form>
+        </footer>
+
+
+        <dialog id="dialog">
+            <form method="dialog"><button>❌</button></form>
+            <div id="container">
+            </div>
+        </dialog>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/3.1.9/signalr.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/7.0.3/signalr.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-storage.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.0.0/firebase-database.js"></script>
+
+    <script src="path-to-your-script.js"></script>
+    <script src="~/js/chat.js"></script>
+    <script src='https://kit.fontawesome.com/a076d05399.js' crossorigin='anonymous'></script>
+    <script>
+        console.log("Firebase SDK Version:", firebase.SDK_VERSION);
+
+        // General Events =====================================================
+        $('#leave').click(e => {
+            sessionStorage.clear();
+            location = '/';
+        });
+
+        // General Functions ==================================================
+        function getImageURL(message) {
+            const re = /.(jpg|jpeg|png|webp|bmp|gif)$/i;
+            try {
+                const url = new URL(message);
+                if (re.test(url.pathname)) {
+                    return url.href;
+                }
+            }
+            catch {
+                // Do nothing
+            }
+            return null;
+        }
+
+        function getYouTubeId(message) {
+            try {
+                const url = new URL(message);
+                if (url.hostname == 'www.youtube.com' && url.pathname == '/watch') {
+                    return url.searchParams.get('v');
+                }
+            }
+            catch {
+                // Do nothing
+            }
+            return null;
+        }
+
+        function sendImages(files) {
+            for (const f of files) {
+                if (f && f.type.startsWith('image/')) {
+                    fit(f, 500, 500, 'dataURL', 'image/webp')
+                        .then(url => {
+                            const name = '@Model.Name';
+                            const photo = '@Model.PhotoURL';
+
+                            processAndSendMessage(photo, name, url);
+                        })
+                        .catch(err => console.error('Error processing image:', err));
+                }
+            }
+        }
+
+        let isRecording = false;
+
+        function startRecording() {
+            console.log("Attempting to start recording..."); 
+            if (isRecording) {
+                console.log("Recording is already in progress");
+                return;
+            }
+
+            navigator.mediaDevices.getUserMedia({ audio: true })
+                .then(stream => {
+                    mediaRecorder = new MediaRecorder(stream);
+                    mediaRecorder.start();
+
+                    audioChunks = [];
+                    mediaRecorder.addEventListener("dataavailable", event => {
+                        audioChunks.push(event.data);
+                    });
+
+                    mediaRecorder.addEventListener("stop", () => {
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                        saveVoiceMessageToFirebase(audioBlob, '@Model.Name'); 
+                    });
+
+                    isRecording = true;
+                    document.getElementById('stopRecord').disabled = false;
+                    document.getElementById('startRecord').disabled = true;
+                    console.log("Recording started"); 
+                })
+                .catch(error => {
+                    console.error("Error accessing media devices:", error);
+                });
+        }
+
+        function stopRecording() {
+            console.log("Attempting to stop recording..."); 
+            if (!isRecording) {
+                console.log("Recording not started yet");
+                return;
+            }
+
+            mediaRecorder.stop();
+            isRecording = false;
+            document.getElementById('startRecord').disabled = false;
+            document.getElementById('stopRecord').disabled = false;
+            console.log("Recording stopped"); 
+        }
+
+        // Button or event to start/stop recording
+        document.getElementById('startRecord').addEventListener('click', startRecording);
+        document.getElementById('stopRecord').addEventListener('click', stopRecording);
+
+        // (1) Filtered Words Feature (CY)
+        function filterWords(message) {
+            const rudeWords = ['fuck', 'pussy', 'cibai', 'sohai', 'lanjiao', 'diu', 'niama', 'pukima', 'bullshit'];
+            let filteredMessage = message;
+
+            rudeWords.forEach(word => {
+                const regex = new RegExp(word, 'gi');
+                filteredMessage = filteredMessage.replace(regex, '*'.repeat(word.length));
+            });
+
+            return filteredMessage;
+        }
+
+        // (2) Audio input (voice-to-text) (CY)
+        if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
+            // Web Speech API is supported
+            const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+
+            // Set language and other options
+            recognition.lang = 'en-US';
+            recognition.lang = 'zh-CN';
+            recognition.interimResults = true;
+            recognition.continuous = true;
+
+            // Get reference to the voice icon element and input field
+            const voiceIcon = document.getElementById('voice-icon');
+            const message = document.getElementById('message');
+
+            // Add click event listener to voice icon
+            voiceIcon.addEventListener('click', event => {
+                if (recognition && recognition.continuous) {
+                    // Stop recognition process
+                    recognition.stop();
+                    recognition.continuous = false;
+                    voiceIcon.innerHTML = '<i class="fa fa-microphone"></i>';
+                } else {
+                    // Start recognition process
+                    recognition.continuous = true;
+                    recognition.start();
+                    voiceIcon.innerHTML = '<i class="fa fa-microphone-slash"></i>';
+                }
+            });
+
+            // Handle recognition results
+            recognition.addEventListener('result', event => {
+                const transcript = Array.from(event.results)
+                    .map(result => result[0].transcript)
+                    .join('');
+
+                message.value = transcript; // Set value of input field to transcript
+            });
+
+            // Handle recognition end event
+            recognition.addEventListener('end', () => {
+                // Reset voice icon
+                voiceIcon.innerHTML = '<i class="fa fa-microphone"></i>';
+            });
+
+            // Handle errors
+            recognition.addEventListener('error', event => {
+                console.log(`Recognition error: ${event.error}`);
+            });
+        } else {
+            // Web Speech API is not supported
+            console.log('Web Speech API is not supported in this browser');
+        }
+
+        // (3) Emoji (CY)
+        $(document).ready(function () {
+            $('#emoji-bar').hide();
+
+            $('#emoji-btn').click(function (event) {
+                $('#emoji-bar').toggle();
+                event.stopPropagation(); 
+            });
+
+            // Hide the emoji bar when any other element is clicked
+            $(document).click(function (event) {
+                if (!$(event.target).closest('#emoji-bar').length && !$(event.target).is('#emoji-btn')) {
+                    $('#emoji-bar').hide();
+                }
+            });
+
+            $('.emoji').click(function () {
+                var emoji = $(this).data('emoji');
+                $('#message').val($('#message').val() + emoji);
+            });
+
+            // Hide the emoji bar when the message input is focused
+            $('#message').focus(function () {
+                $('#emoji-bar').hide();
+            });
+        });
+
+        // (4) Dark and Light Mode (CY)
+        function toggleDarkMode() {
+            const body = document.body;
+            body.classList.toggle("dark-mode");
+        }
+
+        // (5) Upload Background Image (CY)
+        const chatWindow = document.getElementById("chatWindow");
+        const selectBackgroundImageBtn = document.getElementById("selectBackgroundImageBtn");
+        const backgroundImageInput = document.getElementById("backgroundImageInput");
+        const resetBackgroundImageBtn = document.getElementById("resetBackgroundImage");
+
+        selectBackgroundImageBtn.addEventListener("click", () => {
+            backgroundImageInput.click();
+        });
+
+        function handleBackgroundImageUpload(event) {
+            const file = event.target.files[0];
+            if (!file) {
+                return;
+            }
+            if (!file.type.startsWith('image/')) {
+                alert('Please select an image file.');
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                const imageUrl = event.target.result;
+                backgroundImage.src = imageUrl;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function resetBackgroundImage() {
+            backgroundImage.src = "";
+            backgroundImageInput.value = "";
+        }
+
+        backgroundImageInput.addEventListener("change", handleBackgroundImageUpload);
+        resetBackgroundImageBtn.addEventListener("click", resetBackgroundImage);
+
+        // Connection Setup ===================================================
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAttLyLgM8CUYYjW4p8f4dywJB2ok7u0Co",
+            authDomain: "soon-0417.firebaseapp.com",
+            databaseURL: "https://soon-0417-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "soon-0417",
+            storageBucket: "soon-0417.appspot.com",
+            messagingSenderId: "176312153042",
+            appId: "1:176312153042:web:2ba27bd7638d8bb9ca0e0b"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+
+        function SendChatMessageToFirebase(photo, name, message) {
+            const filteredMessage = filterWords(message);
+
+            let formattedMessage = filteredMessage
+                .replaceAll(':)', '😊')
+                .replaceAll(':(', '😥')
+                .replaceAll(';)', '😉')
+                .replaceAll(':|', '😑')
+                .replaceAll('xD', '😂')
+                .replaceAll('<3', '❤️');
+
+            // Convert URLs to clickable links
+            formattedMessage = formattedMessage.replace(
+                /(?<=^|\s)(https?:\/\/\S+)(?=$|\s)/gi,
+                '<a href="$1" target="_blank">$1</a>'
+            );
+
+            const now = new Date();
+            const currentDateTime = now.toLocaleString();
+
+            const chatData = {
+                name: name,
+                message: formattedMessage,
+                dateTime: currentDateTime,
+            };
+
+            console.log("Sending to Firebase:", chatData);
+
+            const db = firebase.database();
+            const firebaseRef = db.ref('Private Chats/' + facultyCode);
+
+            const newMessageRef = firebaseRef.push();
+            const messageId = newMessageRef.key;
+            newMessageRef.set(chatData, function (error) {
+                if (error) {
+                    console.error('Error saving message to Firebase:', error);
+                } else {
+                    console.log('Message sent to Firebase:', chatData);
+                }
+            });
+        }
+
+        function SendYouTubeLinkMessageToFirebase(photo, name, youtubeLink) {
+            const now = new Date();
+            const currentDateTime = now.toLocaleString();
+
+            const chatData = {
+                name: name,
+                message: youtubeLink,
+                dateTime: currentDateTime,
+            };
+
+            const newMessageRef = firebaseRef.push();
+            const messageId = newMessageRef.key;
+            newMessageRef.set(chatData, function (error) {
+                if (error) {
+                    console.error('Error saving message to Firebase:', error);
+                } else {
+                    console.log('Message sent to Firebase:', chatData);
+                }
+            });
+        }
+
+
+        function sendImageAsBase64(files) {
+            if (files.length === 0) return;
+
+            Array.from(files).forEach(file => {
+                if (file && file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+
+                    reader.onload = function (event) {
+                        const base64String = event.target.result;
+                        const userName = '@Model.Name';
+                        saveImageMessageToFirebase(base64String, userName);
+                    };
+
+                    reader.onerror = function (error) {
+                        console.error('Error reading file:', error);
+                    };
+
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        function startDrawingOnCanvas(canvas, context) {
+            let isDrawing = false;
+            let lastX = 0;
+            let lastY = 0;
+
+            canvas.onmousedown = (e) => {
+                isDrawing = true;
+                lastX = e.offsetX;
+                lastY = e.offsetY;
+            };
+
+            canvas.onmousemove = (e) => {
+                if (!isDrawing) return;
+                context.beginPath();
+                context.moveTo(lastX, lastY);
+                context.lineTo(e.offsetX, e.offsetY);
+                context.stroke();
+                lastX = e.offsetX;
+                lastY = e.offsetY;
+            };
+
+            canvas.onmouseup = () => {
+                isDrawing = false;
+            };
+
+            canvas.onmouseout = () => {
+                isDrawing = false;
+            };
+        }
+
+        // This function handles the image file input change
+        $('#file').change(e => {
+            const files = e.target.files;
+            if (files.length > 0) {
+                const file = files[0];
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+
+                    reader.onload = function (event) {
+                        const img = new Image();
+                        img.onload = function () {
+                            const imageCanvas = document.getElementById('imageCanvas'); 
+                            const ctx = imageCanvas.getContext('2d');
+                            imageCanvas.width = img.width;
+                            imageCanvas.height = img.height;
+                            ctx.drawImage(img, 0, 0);
+
+                            imageCanvas.style.display = 'block';
+                            document.getElementById('sendEditedImage').style.display = 'block';
+
+                            startDrawingOnCanvas(imageCanvas, ctx);
+                        };
+                        img.src = event.target.result;
+                    };
+
+                    reader.onerror = function (error) {
+                        console.error('Error reading file:', error);
+                    };
+
+                    reader.readAsDataURL(file);
+                }
+            }
+        });
+
+        document.getElementById('sendEditedImage').onclick = () => {
+            const imageCanvas = document.getElementById('imageCanvas');
+            const imageDataURL = imageCanvas.toDataURL('image/png');
+            const userName = '@Model.Name'; 
+            saveImageMessageToFirebase(imageDataURL, userName);
+
+            imageCanvas.style.display = 'none';
+            document.getElementById('sendEditedImage').style.display = 'none';
+        };
+
+        // Take screenshot and download it
+        document.getElementById('captureButton').onclick = () => {
+            const video = document.getElementById('video');
+
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            const imageDataURL = canvas.toDataURL('image/png');
+
+            const currentUserName = '@Model.Name'; 
+            saveImageMessageToFirebase(imageDataURL, currentUserName);
+        };
+
+        // handles the image file input change
+        document.getElementById('file').addEventListener('change', function (event) {
+            const files = event.target.files;
+            if (files.length > 0) {
+                const file = files[0];
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+
+                    reader.onload = function (event) {
+                        const img = new Image();
+                        img.onload = function () {
+
+                            const maxWidth = 250;  
+                            const maxHeight = 250; 
+                            let width = img.width;
+                            let height = img.height;
+
+                            if (width > height) {
+                                if (width > maxWidth) {
+                                    height *= maxWidth / width;
+                                    width = maxWidth;
+                                }
+                            } else {
+                                if (height > maxHeight) {
+                                    width *= maxHeight / height;
+                                    height = maxHeight;
+                                }
+                            }
+
+                            const canvas = document.getElementById('imageCanvas');
+                            const ctx = canvas.getContext('2d');
+                            canvas.width = width;
+                            canvas.height = height;
+                            ctx.drawImage(img, 0, 0, width, height);
+
+                            canvas.style.display = 'block';
+                            document.getElementById('sendEditedImage').style.display = 'block';
+
+                            startDrawingOnCanvas(canvas, ctx);
+                        };
+                        img.src = event.target.result;
+                    };
+
+                    reader.onerror = function (error) {
+                        console.error('Error reading file:', error);
+                    };
+
+                    reader.readAsDataURL(file);
+                }
+            }
+        });
+
+        document.getElementById('sendEditedImage').onclick = () => {
+            const imageCanvas = document.getElementById('imageCanvas'); 
+            const imageDataURL = imageCanvas.toDataURL('image/png'); 
+
+            saveImageMessageToFirebase(imageDataURL, '@Model.Name');
+
+        };
+
+
+        function saveImageMessageToFirebase(base64String, userName) {
+            const now = new Date();
+            const currentDateTime = now.toLocaleString();
+
+            const messageObject = {
+                name: userName,
+                message: base64String,
+                dateTime: currentDateTime
+            };
+
+            // Push the message object to your Realtime Database
+            firebase.database().ref('Private Chats/' + facultyCode).push(messageObject)
+                .then(() => {
+                    console.log('Image message saved to Firebase.');
+
+                    const imageCanvas = document.getElementById('imageCanvas');
+                    imageCanvas.style.display = 'none';
+                }).catch((error) => {
+                    console.error('Error saving image message to Firebase:', error);
+                });
+        }
+
+        document.getElementById('sendEditedImage').addEventListener('click', function () {
+
+            this.style.display = 'none';
+        });
+
+        function saveVoiceMessageToFirebase(audioBlob, name) {
+            const newMessageRef = firebase.database().ref('Private Chats/' + facultyCode).push();
+            const storageRef = firebase.storage().ref('voiceMessages/' + newMessageRef.key + '.wav');
+
+            const uploadTask = storageRef.put(audioBlob);
+
+            uploadTask.on('state_changed', function (snapshot) {
+
+            }, function (error) {
+
+                console.error('Upload error:', error);
+            }, function () {
+
+                uploadTask.snapshot.ref.getDownloadURL().then(function (downloadURL) {
+                    console.log('File available at', downloadURL);
+
+                    newMessageRef.set({
+                        name: name,
+                        message: downloadURL,
+                        dateTime: new Date().toLocaleString(),
+                        type: 'voice'
+                    });
+                });
+            });
+        }
+
+        function deleteMessage(messageId) {
+            const db = firebase.database();
+            const messageRef = db.ref('Private Chats/' + facultyCode).child(messageId);
+
+            messageRef.remove()
+                .then(() => {
+                    console.log(`Message with ID ${messageId} deleted successfully.`);
+
+                    const chatContainer = document.getElementById('chatContainer');
+                    const messageElement = document.getElementById(messageId);
+
+                    if (messageElement) {
+                        chatContainer.removeChild(messageElement);
+                    }
+                })
+                .catch((error) => {
+                    console.error(`Error deleting message with ID ${messageId}:`, error);
+                });
+        }
+
+        function hideAllDeleteOptions() {
+            document.querySelectorAll('.dropdown-content.show').forEach(element => {
+                element.classList.remove('show');
+            });
+        }
+
+        document.addEventListener('click', (event) => {
+            if (!event.target.matches('.dropdown-icon') && !event.target.matches('.delete-option')) {
+                hideAllDeleteOptions();
+            }
+        });
+
+        function getChatDataFromFirebase() {
+            const dbRef = firebase.database().ref('Private Chats/' + facultyCode);
+            const chatContainer = document.getElementById('chatContainer');
+            const currentUserName = '@ViewBag.CurrentUserName';
+
+            dbRef.on('child_added', (snapshot) => {
+                const data = snapshot.val();
+                const isSelf = data.name === currentUserName; 
+                const chatElement = document.createElement('div');
+                chatElement.className = `chatMessage ${isSelf ? 'self' : 'other'}`;
+                chatElement.setAttribute('id', snapshot.key);
+
+                if (data) {
+                    if (isSelf) {
+                        const dropdownContainer = document.createElement('div');
+                        dropdownContainer.classList.add('dropdown-container');
+
+                        const dropdownIcon = document.createElement('span');
+                        dropdownIcon.textContent = '⌄'; 
+                        dropdownIcon.classList.add('dropdown-icon');
+
+                        const dropdownContent = document.createElement('div');
+                        dropdownContent.classList.add('dropdown-content');
+
+                        const deleteOption = document.createElement('button');
+                        deleteOption.textContent = 'Delete';
+                        deleteOption.classList.add('delete-option');
+                        deleteOption.addEventListener('click', (event) => {
+                            event.stopPropagation(); 
+                            deleteMessage(snapshot.key);
+                        });
+
+                        dropdownContent.appendChild(deleteOption);
+
+                        dropdownIcon.addEventListener('click', (event) => {
+                            event.stopPropagation(); 
+                            hideAllDeleteOptions(); 
+                            dropdownContent.classList.toggle('show'); 
+                        });
+
+                        dropdownContainer.appendChild(dropdownIcon);
+                        dropdownContainer.appendChild(dropdownContent);
+
+                        chatElement.appendChild(dropdownContainer);
+                    }
+                    if (data.type === 'voice') {
+                        const audioElement = document.createElement('audio');
+                        audioElement.controls = true;
+                        audioElement.src = data.message;
+                        chatElement.appendChild(audioElement);
+                    }
+                    else if (isYouTubeLink(data.message)) {
+                        const videoId = extractYouTubeVideoId(data.message);
+                        if (videoId) {
+                            const iframe = document.createElement('iframe');
+                            iframe.src = `https://www.youtube.com/embed/${videoId}`;
+                            iframe.width = '560';
+                            iframe.height = '315';
+                            iframe.frameBorder = '0';
+                            iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
+                            iframe.allowFullscreen = true;
+                            chatElement.appendChild(iframe);
+                        }
+                    } else if (data.message.startsWith('data:image')) {
+                        const imageContainer = document.createElement('div');
+                        imageContainer.classList.add('imageContainer');
+
+                        const nameElement = document.createElement('p');
+                        nameElement.textContent = `${data.name}:`;
+                        nameElement.classList.add('name');
+                        imageContainer.appendChild(nameElement);
+
+                        const imgElement = document.createElement('img');
+                        imgElement.src = data.message;
+                        imgElement.alt = 'Sent image';
+                        imgElement.classList.add('image');
+
+                        imgElement.style.maxWidth = '200px';
+                        imgElement.style.maxHeight = '200px';
+                        imgElement.style.border = 'none';
+                        imageContainer.appendChild(imgElement);
+
+                        chatElement.appendChild(imageContainer);
+                    }
+                    else {
+                        let displayMessage = filterWords(data.message);
+
+                        // (7) Bold, italic, underline, strikethrough, monospace (CY)
+                        displayMessage = displayMessage
+                            .replace(/(\*)([^\*]+)(\*)/gi, '<b>$2</b>')
+                            .replace(/(\_)([^\_]+)(\_)/gi, '<i>$2</i>')
+                            .replace(/(\~)([^\~]+)(\~)/gi, '<s>$2</s>')
+                            .replace(/(\`)([^\`]+)(\`)/gi, '<tt>$2</tt>')
+                            .replace(/(\-)([^\-]+)(\-)/gi, '<u>$2</u>');
+
+                        const messageText = document.createElement('p');
+
+                        messageText.innerHTML = `${data.name}: ${displayMessage}`;
+                        chatElement.appendChild(messageText);
+                    }
+
+                }
+                else {
+                    const errorMessage = document.createElement('p');
+                    errorMessage.textContent = 'Message data is incomplete or missing';
+                    chatElement.appendChild(errorMessage);
+                }
+
+                const dateTimeElement = document.createElement('p');
+                dateTimeElement.textContent = data.dateTime;
+                dateTimeElement.classList.add('dateTime');
+                chatElement.appendChild(dateTimeElement);
+
+                chatContainer.appendChild(chatElement);
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            });
+
+            dbRef.on('child_removed', (snapshot) => {
+                const messageId = snapshot.key;
+                const messageElement = document.getElementById(messageId);
+                if (messageElement) {
+                    chatContainer.removeChild(messageElement);
+                }
+            });
+        }
+
+        function isYouTubeLink(message) {
+            const youtubeRegex = /^(https?\:\/\/)?(www\.youtube\.com|youtu\.?be)\/.+/;
+            return youtubeRegex.test(message);
+        }
+
+        function extractYouTubeVideoId(url) {
+            const videoId = new URL(url).searchParams.get('v');
+            return videoId;
+        }
+
+        window.addEventListener('DOMContentLoaded', getChatDataFromFirebase);
+
+        const param = $.param({ name });
+        const con = new signalR.HubConnectionBuilder()
+            .withUrl('/hub?' + param)
+            .build();
+
+        // (6) ChatTime (SM)
+        const now = new Date();
+        const currentDateTime = now.toLocaleString();
+        document.getElementById("message").textContent = currentDateTime;
+
+        con.on('UpdateStatus', (count, status) => {
+            $('#count').text(count);
+
+            $('#chat').append(`
+                                                                        <li class="status">
+                                                                            <div>
+                                                                                ${status}
+                                                                            </div>
+                                                                        </li>
+                                                                    `);
+        });
+
+        con.on('ReceiveImage', (photo, name, url, who) => {
+            $('#chat').append(`
+                                                                                <li class="${who}">
+                                                                                    <div>
+                                                                                     <img src="/photos/@Model.PhotoURL" style = "max-width: 40px; border: 2px solid #ccc; border-radius: 5px;" alt = "User Photo" >
+                                                                                     <b> ${name}</b> sent an image<br>
+                                                                                        <img src="${url}" class="image">
+                                                                                    </div>
+                                                                                </li>
+                                                                            `);
+        });
+
+        con.on('ReceiveYouTube', (photo, name, id, who) => {
+            $('#chat').append(`
+                                                                                <li class="${who}">
+                                                                                    <div>
+                                                                                                <b>${photo} ${name}</b> sent a video<br>
+                                                                                        <iframe width="400" height="300"
+                                                                                                src="https://www.youtube.com/embed/${id}"
+                                                                                                frameborder="0"
+                                                                                                allowfullscreen></iframe>
+                                                                                    </div>
+                                                                                </li>
+                                                                            `);
+        });
+
+        con.onclose(err => {
+            sessionStorage.clear();
+            location = '/';
+        });
+
+        // Start ==============================================================
+        con.start().then(main);
+
+        function main() {
+
+            // (8) Prevent Spam (SM)
+            let lastMessageTimestamp = 0;
+            let messageCount = 0;
+
+            const blockMessage = $('#message');
+            let timerId = null;
+
+            function disableMessageFor(seconds) {
+                blockMessage.attr('disabled', true);
+                let remainingSeconds = seconds;
+
+                timerId = setInterval(() => {
+                    if (remainingSeconds === 0) {
+                        clearInterval(timerId);
+                        blockMessage.attr('disabled', false);
+                        blockMessage.focus();
+                        blockMessage.val('');
+                        return;
+                    }
+                    blockMessage.val(`Please wait for ${remainingSeconds} seconds...`);
+                    remainingSeconds--;
+                }, 1000);
+            }
+
+            function preventSpam() {
+                const now = new Date().getTime();
+                if ((now - lastMessageTimestamp) < 1000) {
+                    messageCount++;
+                    if (messageCount > 3) { // set a maximum message count of 3
+                        clearInterval(timerId);
+                        disableMessageFor(3);
+                        return false;
+                    }
+                } else {
+                    messageCount = 0;
+                }
+                lastMessageTimestamp = now;
+                return true;
+            }
+            // ==============================================================
+
+            $('footer form').submit(e => {
+                e.preventDefault();
+
+                const message = $('#message').val().trim();
+                const name = '@Model.Name';
+                const photo = '@Model.PhotoURL';
+
+                if (!preventSpam()) {
+                    return;
+                }
+
+                clearInterval(timerId);
+                blockMessage.val('');
+
+                if (message) {
+                    const filteredMessage = filterWords(message);
+                    SendChatMessageToFirebase(photo, name, filteredMessage);
+
+                    const url = getImageURL(message);
+                    const id = getYouTubeId(message);
+
+                    function processAndSendMessage(photo, name, message) {
+                        const filteredMessage = filterWords(message);
+
+                        SendChatMessageToFirebase(photo, name, filteredMessage);
+
+                        const url = getImageURL(filteredMessage);
+                        const id = getYouTubeId(filteredMessage);
+
+                        if (url) {
+                            con.invoke('SendImage', photo, name, url);
+                            console.log('hallo');
+                        }
+                        else if (id) {
+                            con.invoke('SendYouTube', photo, name, id);
+                        }
+                        else {
+                            con.invoke('SendText', photo, name, filteredMessage);
+                        }
+                    }
+
+
+                }
+                $('#message').val('').focus();
+            });
+
+
+            $(document).on('click', '.image', e => {
+                document.fullscreenElement ?
+                    document.exitFullscreen() :
+                    e.target.requestFullscreen();
+            });
+
+            $('#image').click(e => $('#file').click());
+
+            $('#file').change(e => {
+                const files = e.target.files;
+                sendImages(files);
+                e.target.value = null;
+            });
+
+            $('main').on('dragenter dragover', e => {
+                e.preventDefault();
+                $('main').addClass('active');
+            });
+
+            $('main').on('dragleave drop', e => {
+                e.preventDefault();
+                $('main').removeClass('active');
+            });
+
+            $('main').on('drop', e => {
+                e.preventDefault();
+                const files = e.originalEvent.dataTransfer.files;
+                sendImageAsBase64(files);
+                $('main').removeClass('active');
+            });
+
+            $('#gallery').click(e => {
+                const $images = $('.image').clone();
+                $('#container').append($images.length ? $images : 'No image');
+                $('#dialog')[0].showModal();
+            });
+
+            $('#dialog').on('close', e => {
+                $('#container').empty();
+            });
+
+            // (9) Webcam (SM)
+            const video = document.querySelector('video');
+            const canvas = document.getElementById('canvas');
+            const startButton = document.getElementById('startButton');
+            const stopButton = document.getElementById('stopButton');
+            const recordButton = document.getElementById('recordButton');
+            const captureButton = document.getElementById('captureButton');
+            let mediaStream = null;
+            let isCameraOn = false;
+            let mediaRecorder;
+            let recordedChunks = [];
+
+            // Toggle webcam on or off
+            startButton.addEventListener('click', async () => {
+                if (isCameraOn) {
+                    if (mediaStream) {
+                        mediaStream.getTracks().forEach(track => track.stop());
+                        video.srcObject = null;
+                    }
+                    isCameraOn = false;
+                } else {
+                    try {
+                        mediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                        video.srcObject = mediaStream;
+                        isCameraOn = true; 
+                        mediaRecorder = new MediaRecorder(mediaStream);
+                        mediaRecorder.ondataavailable = (event) => {
+                            recordedChunks.push(event.data);
+                        };
+                        mediaRecorder.onstop = () => {
+                            const blob = new Blob(recordedChunks, { type: 'video/mp4' });
+                            recordedChunks = [];
+
+                            const downloadLink = document.createElement('a');
+                            downloadLink.download = 'recorded-video.mp4';
+                            downloadLink.href = URL.createObjectURL(blob);
+                            document.body.appendChild(downloadLink);
+                            downloadLink.click();
+                            document.body.removeChild(downloadLink);
+                        };
+                    } catch (error) {
+                        console.error('Error occurred while accessing webcam:', error);
+                    }
+                }
+            });
+
+            // Start recording
+            recordButton.onclick = () => {
+                mediaRecorder.start();
+                video.muted = true;
+            };
+
+            // Establish a connection to the SignalR hub
+            const connection = new signalR.HubConnectionBuilder()
+                .withUrl('/screenShareHub') 
+                .build();
+
+            // Start the SignalR connection
+            connection.start().catch(err => console.error('Error while starting connection: ' + err));
+
+            const shareScreenBtn = document.getElementById('shareScreenBtn');
+
+            shareScreenBtn.addEventListener('click', () => {
+                if (shareScreenBtn.textContent === 'Share Screen') {
+                    startScreenSharing();
+                } else {
+                    stopScreenSharing();
+                }
+            });
+
+            // Start screen sharing
+            async function startScreenSharing() {
+                try {
+                    const stream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+
+                    yourPeerConnection.addStream(stream);
+
+                    yourSignalRConnection.invoke("NotifyScreenShareStarted");
+                } catch (error) {
+                    console.error('Error sharing the screen:', error);
+                }
+            }
+
+            function stopScreenSharing() {
+                connection.invoke("NotifyScreenShareStopped"); 
+                shareScreenBtn.textContent = 'Share Screen';
+            }
+
+            connection.on("ScreenShareStarted", () => {
+                console.log("Another user has started screen sharing.");
+            });
+
+            connection.on("ScreenShareStopped", () => {
+                console.log("Another user has stopped screen sharing.");
+            });
+        }
+    </script>
+
+</body>
+
+</html>

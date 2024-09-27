@@ -1,0 +1,77 @@
+﻿@using X.PagedList;
+@using X.PagedList.Mvc.Core;
+@using X.PagedList.Web.Common;
+@model IEnumerable<Room>
+
+
+@{
+    ViewBag.Title = "Delete Room";
+}
+
+@section head {
+    <style>
+        footer {
+            display: none;
+        }
+
+        main > h1 {
+            color: whitesmoke;
+        }
+
+        #btn {
+            transition: all .5s ease;
+            width: 10%;
+            border-radius: 30px;
+            color: #008080;
+            font-weight: 600;
+            background-color: #fff;
+            border: 1px solid #008080;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+
+            #btn:hover, #btn:focus {
+                background-color: #008080;
+                color: #fff;
+            }
+    </style>
+}
+
+<form method="post" action="/Room/DeleteMany" id="f"></form>
+
+<p>
+    <button data-check="ids" id="btn">Check All</button>
+    <button data-uncheck="ids" id="btn">Uncheck All</button>
+    <button form="f" id="btn">Delete Checked</button>
+</p>
+
+<p style="color: whitesmoke">@Model.Count() Record(s)</p>
+
+<table class="table">
+    <tr>
+        <th></th>
+        <th>Room ID</th>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Type</th>
+        <th></th>
+    </tr>
+
+    @foreach (var r in Model)
+    {
+        <tr data-checkable>
+            <td>
+                <input type="checkbox" name="ids" value="@r.RoomId" form="f">
+            </td>
+            <td>@r.RoomId</td>
+            <td>@r.Room_Name</td>
+            <td>@r.Room_Description</td>
+            <td>@r.Room_Type</td>
+            <td>
+                <button data-post="/Room/Delete?roomid=@r.RoomId">Delete</button>
+            </td>
+
+        </tr>
+
+    }
+</table>

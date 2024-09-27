@@ -1,0 +1,52 @@
+﻿@*@model MaintenanceVM*@
+
+
+@{
+    ViewBag.Title = "User List";
+}
+
+@section head {
+    <style>
+        footer {
+            display: none;
+        }
+
+        main > h1 {
+            color: whitesmoke;
+        }
+    </style>
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
+
+
+<div id="target">
+    <partial name="_SuperAdminMaintenance">
+</div>
+
+@section foot {
+    <script>
+        let timer = null;
+
+        $(document).on('input', '#name', e => {
+            clearTimeout(timer);
+            timer = setTimeout(() => $(e.target.form).submit(), 500);
+        });
+
+        function success() {
+            $('#name').focus();
+            $('#name')[0].setSelectionRange(-1, -1);
+
+            const name = $('#name').val().trim();
+
+            if (!name) return;
+
+            const re = new RegExp(escapeRegExp(name), 'gi');
+
+            $('td:nth-child(2)').each((i, el) => {
+                const html = $(el).html().replace(re, '<mark>$&</mark>');
+                $(el).html(html);
+            });
+        }
+    </script>
+}

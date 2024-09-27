@@ -1,0 +1,121 @@
+﻿@{
+    ViewBag.Title = "Our Location";
+}
+
+@section head {
+
+    <style>
+        /* NOTE: main > (h1 + div) */
+        main {
+            display: grid;
+            grid: auto 500px / auto;
+        }
+
+            main > div {
+                display: grid;
+                grid: auto 1fr / auto;
+                gap: 5px;
+            }
+
+            main > h1 {
+                text-align: center;
+                font-size: 300%;
+                font-weight: bolder;
+                font-family: Yantramanav Bold;
+                color: whitesmoke;
+            }
+
+        #map {
+            border: 1px solid #333;
+        }
+
+        #info {
+            font: 16px 'Roboto';
+            text-align: center;
+        }
+
+            #info img {
+                border: 1px solid #333;
+                width: 200px;
+            }
+
+        /* TODO: Hide Google Maps dialog box */
+        #map div:has(.dismissButton) {
+            display: none;
+        }
+
+        .font-yantra {
+            font-family: 'Yantramanav Medium';
+        }
+
+    </style>
+}
+
+<div>
+    <div>
+        <button id="store">Store</button>
+        <select id="type">
+            <option>Roadmap</option>
+            <option>Satellite</option>
+            <option>Hybrid</option>
+            <option>Terrain</option>
+        </select>
+    </div>
+
+    <div id="map"></div><br><br>
+
+    <div hidden>
+        <div id="info">
+            <img src="/images/chat.png">
+            <div>
+                Find out more information
+                <a href="/Home/Index">here</a>.
+            </div>
+        </div>
+    </div>
+</div>
+
+@section foot {
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCSNW7Pt4PQZ7qxeT6rrTAQoBqpcw51KBE"></script>
+    <script>
+        // TODO(1): Setup map, marker and info window -------------------------
+        // TAR UMT (KL) --> 3.215, 101.728
+        // TAR UMT (PG) --> 5.453, 100.285
+        // Bukit Bintang --> 3.1468, 101.7113
+
+        const gm = google.maps;
+
+        const center = new gm.LatLng(3.2153, 101.7266);
+
+        const map = new gm.Map($('#map')[0], {
+            center,
+            zoom: 18,
+            disableDefaultUI: true,
+            clickableIcons: false,
+        });
+
+        const marker = new gm.Marker({
+            map,
+            position: center,
+            icon: '/images/department.png',
+        });
+
+        const info = new gm.InfoWindow({
+            content: $('#info')[0],
+            anchor: marker,
+        });
+
+        // TODO(3): DOM events ------------------------------------------------
+        $('#store').click(e => {
+            map.setZoom(18);
+            map.panTo(center);
+        });
+
+        $('#type').change(e => {
+            const type = $('#type').val().toLowerCase();
+            map.setMapTypeId(type);
+        });
+
+
+    </script>
+}

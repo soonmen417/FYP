@@ -1,0 +1,113 @@
+﻿@using X.PagedList;
+@using X.PagedList.Mvc.Core;
+@using X.PagedList.Web.Common;
+@model IEnumerable<User>
+
+
+@{
+    ViewBag.Title = "Delete User";
+}
+
+@section head {
+    <style>
+        footer {
+            display: none;
+        }
+
+        main > h1 {
+            color: whitesmoke;
+        }
+
+        #btn {
+            transition: all .5s ease;
+            width: 10%;
+            border-radius: 30px;
+            color: #008080;
+            font-weight: 600;
+            background-color: #fff;
+            border: 1px solid #008080;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+
+            #btn:hover, #btn:focus {
+                background-color: #008080;
+                color: #fff;
+            }
+    </style>
+}
+
+@{
+    string userRole = "S";
+    var filteredUsers = Model.Where(u => u.Role != "SA" && (userRole == "A" ? u.Role != "A" : true));
+}
+
+@{
+    Dictionary<string, string> roleMappings = new Dictionary<string, string>
+    {
+        { "A", "Admin" },
+        { "L", "Lecturer" },
+        { "S", "Student" },
+    };
+}
+
+@{
+    Dictionary<string, string> codeMappings = new Dictionary<string, string>
+    {
+        { "CS", "Computer Science" },
+        { "IS", "Information Systems" },
+        { "AF", "Accounting and Finance" },
+        { "BM", "Business Management" },
+        { "BE", "Biomedical Engineering" },
+        { "EE", "Electrical Engineering" }
+    };
+}
+
+<form method="post" action="/Account/DeleteMany" id="f"></form>
+
+<p>
+    <button data-check="ids" id="btn">Check All</button>
+    <button data-uncheck="ids" id="btn">Uncheck All</button>
+    <button form="f" id="btn">Delete Checked</button>
+</p>
+
+<p style="color: whitesmoke">@Model.Count() Record(s)</p>
+
+<table class="table">
+    <tr>
+        <th></th>
+        <th>Email</th>
+        <th>Name</th>
+        <th>Gender</th>
+        <th>Phone Number</th>
+        <th>Address</th>
+        <th>Faculty</th>
+        <th>Programme</th>
+        <th>Intake Year</th>
+        <th>Role</th>
+        <th></th>
+    </tr>
+
+    @foreach (var s in filteredUsers)
+    {
+        <tr data-checkable>
+            <td>
+                <input type="checkbox" name="ids" value="@s.Email" form="f">
+            </td>
+            <td>@s.Email</td>
+            <td>@s.Name</td>
+            <td>@s.Gender</td>
+            <td>@s.PhoneNumber</td>
+            <td>@s.Address</td>
+            <td>@(string.IsNullOrEmpty(s.Faculty_Code) ? "-" : s.Faculty_Code)</td>
+            <td>@(s.Programme_Code != null && codeMappings.ContainsKey(s.Programme_Code) ? codeMappings[s.Programme_Code] : "-")</td>
+            <td>@(!string.IsNullOrEmpty(s.Year) ? s.Year : "-")</td>
+            <td>@(roleMappings.ContainsKey(s.Role) ? roleMappings[s.Role] : "Unknown Role")</td>
+            <td>
+                <button data-post="/Account/Delete?email=@s.Email">Delete</button>
+            </td>
+
+        </tr>
+
+    }
+</table>

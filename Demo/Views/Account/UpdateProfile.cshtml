@@ -1,0 +1,91 @@
+﻿@model UpdateProfileVM
+
+@{
+    ViewBag.Title = "Update Profile";
+}
+
+@section head {
+    <style>
+
+        footer {
+            display: none;
+        }
+
+        main > h1 {
+            color: whitesmoke;
+        }
+
+        #btn {
+            transition: all .5s ease;
+            width: 85px;
+            border-radius: 30px;
+            color: #008080;
+            font-weight: 600;
+            background-color: #fff;
+            border: 1px solid #008080;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+
+            #btn:hover, #btn:focus {
+                background-color: #008080;
+                color: #fff;
+            }
+
+        .form > label {
+            background-color: transparent;
+        }
+
+        .form > input, textarea, select {
+            width: 100%;
+            color: whitesmoke;
+            border-left: 0;
+            border-top: 0;
+            border-right: 0;
+            border-bottom: 1px solid #008080;
+            outline: none;
+            background: transparent;
+        }
+
+    </style>
+}
+
+<form class="form" method="post" enctype="multipart/form-data">
+    <div asp-validation-summary="ModelOnly"></div>
+
+    <label asp-for="Email"></label>
+    <b style="color: whitesmoke;">@Model.Email</b>
+    <br>
+
+    <label asp-for="Name"></label>
+    <input asp-for="Name" autofocus>
+    <span asp-validation-for="Name"></span>
+
+    <label asp-for="Phone"></label>
+    <input asp-for="Phone">
+    <span asp-validation-for="Phone"></span>
+
+    <label asp-for="Address"></label>
+    <div>
+        <textarea input asp-for="Address"></textarea>
+    </div>
+    <span asp-validation-for="Address"></span>
+
+    <label asp-for="Photo"></label>
+    <div>
+        <label class="upload">
+            <small style="color: whitesmoke;">Select Photo...</small>
+            <input asp-for="Photo" accept="image/jpeg,image/png" hidden>
+            <img src="/photos/@Model.PhotoURL">
+        </label>
+    </div>
+    <span asp-validation-for="Photo"></span>
+
+    <br>
+
+    <section>
+        <button id="btn">Update</button>
+        <button type="reset" id="btn">Reset</button>
+    </section>
+
+</form>

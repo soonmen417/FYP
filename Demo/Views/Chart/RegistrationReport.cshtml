@@ -1,0 +1,120 @@
+﻿@{
+    ViewBag.Title = "Overall User Registration Report";
+}
+
+@section head {
+    <style>
+
+    footer {
+        display: none;
+    }
+
+    main > h1 {
+        color: whitesmoke;
+    }
+
+    </style>
+}
+
+<p>
+    @Html.DropDownList("role", new SelectList(new[]
+            {
+    new { Value = "S", Text = "Student" },
+    new { Value = "L", Text = "Lecturer" },
+    new { Value = "A", Text = "Admin" },
+    }, "Value", "Text"), "")
+
+    <span id="loader">
+        <img src="/images/loader.gif">
+        Loading...
+    </span>
+</p>
+
+<div id="chart" style="width: 800px; height: 400px"></div>
+
+<p>
+    <a href="#" id="download" download="OverallUserRegistrationReport.png" style="color: whitesmoke;">Download</a>
+</p>
+
+@section foot {
+    <script src="https://www.gstatic.com/charts/loader.js"></script>
+    <script>
+        google.charts.load('current', { packages: ['corechart'] });
+        google.charts.setOnLoadCallback(init);
+
+        let dt, opt, cht, selectedRole, columnName;;
+
+        function init() {
+            dt = new google.visualization.DataTable();
+
+            dt.addColumn('string', 'Month');
+            dt.addColumn('number', 'Total User');
+
+            const style = { bold: true, italic: false, fontSize: 20, color: 'tomato' };
+
+            opt = {
+                title: 'Overall New Register Users ',
+                fontName: 'Roboto',
+                fontSize: 16,
+                titleTextStyle: { fontSize: 20 },
+                chartArea: { width: '85%', height: '70%', top: 60, left: 100 },
+                legend: 'none',
+                hAxis: { title: 'Month', titleTextStyle: style },
+                vAxis: { title: 'Total User', titleTextStyle: style, format: '0' },
+                animation: { duration: 500, startup: true },
+                colors: ['tomato']
+            };
+
+            cht = new google.visualization.ColumnChart($('#chart')[0]);
+
+            $('#year').change();
+        }
+
+        $('#role').change(e => {
+            e.preventDefault();
+
+            const selectedRole = $('#role').val();
+            const url = 'RegisterInfo';
+            const param = { role: selectedRole };
+
+            $('#loader').show();
+
+            $.getJSON(url, param)
+                .done(data => {
+                    console.log('Data received:', data);
+
+                    opt.title = `Overall New Register Users - ${getFullRoleName(selectedRole)}`;
+
+                    dt.removeRows(0, dt.getNumberOfRows());
+                    dt.addRows(data);
+
+                    cht.draw(dt, opt);
+                })
+                .fail((jqxhr, textStatus, error) => {
+                    const err = `${textStatus}, ${error}`;
+                    console.error(`Request Failed: ${err}`);
+                })
+                .always(() => {
+                    $('#loader').hide();
+                });
+        });
+
+        function getFullRoleName(role) {
+            switch (role) {
+                case 'S':
+                    return 'Student';
+                case 'L':
+                    return 'Lecturer';
+                case 'A':
+                    return 'Admin';
+                default:
+                    return 'Unknown Role';
+            }
+        }
+
+        $('#download').click(e => {
+            e.target.href = cht.getImageURI();
+            e.target.download = 'OverallUserRegistrationReport' + '.png';
+        });
+    </script>
+}

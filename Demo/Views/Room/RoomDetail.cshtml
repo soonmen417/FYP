@@ -1,0 +1,61 @@
+﻿@inject Helper hp
+@model Room
+
+@{
+    ViewBag.Title = "Room Details";
+}
+
+@section head {
+    <style>
+
+        footer {
+            display: none;
+        }
+
+        main > h1 {
+            color: whitesmoke;
+        }
+
+        #btn {
+            transition: all .5s ease;
+            width: 5%;
+            border-radius: 30px;
+            color: #008080;
+            font-weight: 600;
+            background-color: #fff;
+            border: 1px solid #008080;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+
+            #btn:hover, #btn:focus {
+                background-color: #008080;
+                color: #fff;
+            }
+
+    </style>
+}
+
+<table class="table detail">
+    <tr>
+        <th>Room Id</th>
+        <td>@Model.RoomId</td>
+    </tr>
+    <tr>
+        <th>Name</th>
+        <td>@Model.Room_Name</td>
+    </tr>
+    <tr>
+        <th>Description</th>
+        <td>@Model.Room_Description</td>
+    </tr>
+    <tr>
+        <th>Type</th>
+        <td>@Model.Room_Type</td>
+    </tr>
+</table>
+
+<p>
+    <button data-get="/" id="btn">Index</button>
+    <button data-back id="btn">Back</button>
+</p>

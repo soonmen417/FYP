@@ -1,0 +1,126 @@
+﻿@using X.PagedList;
+@using X.PagedList.Mvc.Core;
+@using X.PagedList.Web.Common;
+@model IPagedList<User>
+
+@{
+    string[] fields = { "No", "Email", "Name", "Gender", "Phone Number", "Address", "Faculty", "Programme", "Intake Year", "Role", "Joined Date & Time" };
+    var i = 1;
+}
+
+@{
+    string userRole = "S";
+    var filteredUsers = Model.Where(u => u.Role != "SA" && (userRole == "A" ? u.Role != "A" : true));
+}
+
+@{
+    Dictionary<string, string> roleMappings = new Dictionary<string, string>
+    {
+        { "A", "Admin" },
+        { "L", "Lecturer" },
+        { "S", "Student" },
+    };
+}
+
+@{
+    Dictionary<string, string> codeMappings = new Dictionary<string, string>
+    {
+        { "CS", "Computer Science" },
+        { "IS", "Information Systems" },
+        { "AF", "Accounting and Finance" },
+        { "BM", "Business Management" },
+        { "BE", "Biomedical Engineering" },
+        { "EE", "Electrical Engineering" }
+    };
+}
+
+@* TODO *@
+<form data-ajax="true"
+      data-ajax-update="#target"
+      data-ajax-loading="#loader"
+      data-ajax-success="success">
+    <button type="button" class="btn1" data-get="/Account/Insert">Add New User</button> <br><br>
+    @Html.TextBox("name", null, new { autofocus = "", type = "search" })
+    @Html.Hidden("sort")
+    @Html.Hidden("dir")
+    <img src="/images/loader.gif" id="loader" style="display: none">
+</form>
+
+<p style="color: whitesmoke;">
+
+    @Model.Count of @Model.TotalItemCount record(s) |
+    Page @Model.PageNumber of @Model.PageCount
+</p>
+
+<table class="table">
+    <tr>
+        @foreach (var f in fields)
+        {
+            string d = "asc";
+            string c = "";
+
+            if (f == ViewBag.Sort)
+            {
+                d = ViewBag.Dir == "des" ? "asc" : "des";
+                c = ViewBag.Dir;
+            }
+
+            <th>
+                @* TODO *@
+                <a data-ajax="true"
+                   data-ajax-update="#target"
+                   data-ajax-loading="#loader"
+                   data-ajax-success="success"
+                   href="?name=@ViewBag.Name&sort=@f&dir=@d" class="@c">@f</a>
+            </th>
+        }
+        <th></th>
+    </tr>
+
+    @foreach (var s in filteredUsers)
+    {
+        <tr class="cust-list">
+            <td>@i</td>
+            <td>@s.Email</td>
+            <td>@s.Name</td>
+            <td>@(s.Gender == "M" ? "Male" : "Female")</td>
+            <td>@s.PhoneNumber</td>
+            <td>@s.Address</td>
+            <td>@(string.IsNullOrEmpty(s.Faculty_Code) ? "-" : s.Faculty_Code)</td>
+            <td>@(s.Programme_Code != null && codeMappings.ContainsKey(s.Programme_Code) ? codeMappings[s.Programme_Code] : "-")</td>
+            <td>@(!string.IsNullOrEmpty(s.Year) ? s.Year : "-")</td>
+            <td>@(roleMappings.ContainsKey(s.Role) ? roleMappings[s.Role] : "Unknown Role")</td>
+            <td>@s.CreationDate</td>
+
+            <td>
+                <button data-get="/Account/Detail?email=@s.Email" style="cursor: pointer">View</button>
+                <button data-get="/Account/EditProfile?email=@s.Email" style="cursor: pointer">Edit</button>
+                <button data-get="/Account/DeleteUser" style="cursor: pointer">Delete</button>
+            </td>
+        </tr>
+        i++;
+    }
+</table>
+
+@{
+    var options = PagedListRenderOptions.ClassicPlusFirstAndLast;
+    options.LinkToFirstPageFormat = "First";
+    options.LinkToLastPageFormat = "Last";
+    options.LinkToPreviousPageFormat = "Previous";
+    options.LinkToNextPageFormat = "Next";
+
+    // TODO
+    var ajaxOptions = new AjaxOptions
+            {
+                HttpMethod = "get",
+                UpdateTargetId = "target",
+                LoadingElementId = "#loader",
+                OnSuccess = "success"
+            };
+}
+
+@Html.PagedListPager(
+                    Model,
+                    p => $"?name={ViewBag.Name}&sort={ViewBag.Sort}&dir={ViewBag.Dir}&page={p}",
+                    PagedListRenderOptions.EnableUnobtrusiveAjaxReplacing(options, ajaxOptions) // TODO
+                )

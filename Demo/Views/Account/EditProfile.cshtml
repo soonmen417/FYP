@@ -1,0 +1,160 @@
+﻿@model EditProfileVM
+
+@{
+    ViewBag.Title = "Edit User Profile";
+}
+
+@section head {
+    <style>
+
+        footer {
+            display: none;
+        }
+
+        main > h1 {
+            color: whitesmoke;
+        }
+
+        #btn {
+            transition: all .5s ease;
+            width: 85px;
+            border-radius: 30px;
+            color: #008080;
+            font-weight: 600;
+            background-color: #fff;
+            border: 1px solid #008080;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+
+            #btn:hover, #btn:focus {
+                background-color: #008080;
+                color: #fff;
+        }
+
+        .form > label {
+            background-color: transparent;
+        }
+
+        .form > input, textarea, select {
+            width: 100%;
+            color: whitesmoke;
+            border-left: 0;
+            border-top: 0;
+            border-right: 0;
+            border-bottom: 1px solid #008080;
+            outline: none;
+            background: transparent;
+        }
+
+    </style>
+}
+
+<form class="form" method="post" enctype="multipart/form-data">
+    <div asp-validation-summary="ModelOnly"></div>
+
+    <label asp-for="Email"></label>
+    <b style="color: whitesmoke;">@Model.Email</b>
+    <br>
+
+    <label asp-for="Name"></label>
+    <input asp-for="Name" autofocus> @*data-upper*@ @*Must be uppercase*@
+    <span asp-validation-for="Name"></span>
+
+    <label asp-for="Phone"></label>
+    <input asp-for="Phone" autofocus> @*data-upper*@
+    <span asp-validation-for="Phone"></span>
+
+    <label asp-for="Address"></label>
+    <div>
+        <textarea input asp-for="Address" autofocus></textarea>
+    </div>
+    <span asp-validation-for="Address"></span>
+
+    @if (Model.Role == "S")
+    {
+        <label asp-for="Faculty"></label>
+        <div>
+            <select id="facultyDropdown" asp-for="Faculty" class="form-control">
+                <option style="color: black;"></option>
+                <option value="FOCS" style="color: black;">FOCS</option>
+                <option value="FAFB" style="color: black;">FAFB</option>
+                <option value="FOBE" style="color: black;">FOBE</option>
+            </select>
+        </div>
+        <span asp-validation-for="Faculty"></span>
+
+
+        <label asp-for="Programme"></label>
+        <div>
+            <select id="programmeDropdown" asp-for="Programme" class="form-control">
+            </select>
+        </div>
+        <span asp-validation-for="Programme"></span>
+
+
+        <label asp-for="IntakeYear"></label>
+        <div>
+            <select id="intakeDropdown" asp-for="IntakeYear" class="form-control">
+                <option></option>
+                <option value="Y1" style="color:black;">Y1</option>
+                <option value="Y2" style="color:black;">Y2</option>
+                <option value="Y3" style="color:black;">Y3</option>
+            </select>
+        </div>
+        <span asp-validation-for="IntakeYear"></span>
+    }
+ 
+    <br>
+
+    <section>
+        <button id="btn">Update</button>
+        <button type="reset" id="btn">Reset</button>
+        <button data-back id="btn">Back</button>
+    </section>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+
+            $('#facultyDropdown').change(function () {
+                var selectedFaculty = $(this).val();
+
+                updateProgrammeDropdown(selectedFaculty);
+            });
+
+            var selectedFaculty = $('#facultyDropdown').val();
+
+            updateProgrammeDropdown(selectedFaculty);
+        });
+
+        function updateProgrammeDropdown(selectedFaculty) {
+            var programmeDropdown = $('#programmeDropdown');
+
+            programmeDropdown.empty();
+
+            switch (selectedFaculty) {
+                case 'FOCS':
+                    programmeDropdown.append('<option value="CS" style="color:black;">Computer Science</option>');
+                    programmeDropdown.append('<option value="IS" style="color:black;">Information Systems</option>');
+                    break;
+                case 'FAFB':
+                    programmeDropdown.append('<option value="AF" style="color:black;">Accounting and Finance</option>');
+                    programmeDropdown.append('<option value="BM" style="color:black;">Business Management</option>');
+                    break;
+                case 'FOBE':
+                    programmeDropdown.append('<option value="BE" style="color:black;">Biomedical Engineering</option>');
+                    programmeDropdown.append('<option value="EE" style="color:black;">Electrical Engineering</option>');
+                    break;
+                default:
+                    break;
+            }
+
+            var userProgramCode = '@Model.Programme';
+            programmeDropdown.val(userProgramCode);
+
+        }
+    </script>
+
+</form>

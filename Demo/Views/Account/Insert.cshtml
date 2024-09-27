@@ -1,0 +1,275 @@
+﻿@model InsertVM
+
+@{
+    ViewBag.Title = "Insert New User";
+}
+
+@section head {
+    <style>
+
+        footer {
+            display: none;
+        }
+
+        main > h1 {
+            color: whitesmoke;
+        }
+
+        #btn {
+            transition: all .5s ease;
+            width: 85px;
+            border-radius: 30px;
+            color: #008080;
+            font-weight: 600;
+            background-color: #fff;
+            border: 1px solid #008080;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+
+            #btn:hover, #btn:focus {
+                background-color: #008080;
+                color: #fff;
+            }
+
+        .form > label {
+            background-color: transparent;
+        }
+
+        .form > input, textarea, select {
+            width: 100%;
+            color: whitesmoke;
+            border-left: 0;
+            border-top: 0;
+            border-right: 0;
+            border-bottom: 1px solid #008080;
+            outline: none;
+            background: transparent;
+        }
+
+    </style>
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
+
+<form class="form" method="post" enctype="multipart/form-data">
+    <div asp-validation-summary="ModelOnly"></div>
+
+    <label asp-for="Role"></label>
+    <div style="color: whitesmoke">
+        <label><input asp-for="Role" type="radio" value="L">Lecturer</label>
+        <label><input asp-for="Role" type="radio" value="S">Student</label>
+        @if (User.IsInRole("SA"))
+        {
+            <label><input asp-for="Role" type="radio" value="A">Admin</label>
+        }
+    </div>
+    <span asp-validation-for="Role"></span>
+
+
+    <label asp-for="Email"></label>
+    <input asp-for="Email" autofocus>
+    <span asp-validation-for="Email"></span>
+
+
+    <label asp-for="Name"></label>
+    <input asp-for="Name">
+    <span asp-validation-for="Name"></span>
+
+
+    <label asp-for="Gender"></label>
+    <div style="color: whitesmoke">
+        <label><input asp-for="Gender" type="radio" value="F">Female</label>
+        <label><input asp-for="Gender" type="radio" value="M">Male</label>
+    </div>
+    <span asp-validation-for="Gender"></span>
+
+
+    <label asp-for="Phone"></label>
+    <input asp-for="Phone">
+    <span asp-validation-for="Phone"></span>
+
+
+    <label asp-for="Address"></label>
+    <div>
+        <textarea input asp-for="Address"></textarea>
+    </div>
+    <span asp-validation-for="Address"></span>
+
+
+    <label asp-for="Faculty"></label>
+    <div>
+        <select id="facultyDropdown" asp-for="Faculty" class="form-control">
+            <option style="color: black;"></option>
+            <option value="FOCS" style="color: black;">FOCS</option>
+            <option value="FAFB" style="color: black;">FAFB</option>
+            <option value="FOBE" style="color: black;">FOBE</option>
+        </select>
+    </div>
+    <span asp-validation-for="Faculty"></span>
+
+
+    <label asp-for="Programme"></label>
+    <div>
+        <select id="programmeDropdown" asp-for="Programme" class="form-control">
+            <!-- Options will be dynamically populated based on the selected faculty -->
+        </select>
+    </div>
+    <span asp-validation-for="Programme"></span>
+
+
+    <label asp-for="IntakeYear"></label>
+    <div>
+        <select id="intakeDropdown" asp-for="IntakeYear" class="form-control">
+            <option style="color: black;"></option>
+            <option value="Y1" style="color: black;">Y1</option>
+            <option value="Y2" style="color: black;">Y2</option>
+            <option value="Y3" style="color: black;">Y3</option>
+        </select>
+    </div>
+    <span asp-validation-for="IntakeYear"></span>
+
+
+    <label asp-for="Password"></label>
+    <div>
+        <input asp-for="Password" autocomplete="current-password" required="" id="id_password" style="width: 100%; color: whitesmoke; border-left: 0; border-top: 0; border-right: 0; border-bottom: 1px solid #008080; outline: none; background: transparent;">
+        <i class="far fa-eye" id="togglePassword" style="margin: -22px 0px 25px 170px; cursor: pointer; position: absolute; color: whitesmoke;"></i>
+    </div>
+    <span asp-validation-for="Password"></span>
+
+
+    <label asp-for="Confirm"></label>
+    <div id="pass">
+        <input asp-for="Confirm" autocomplete="current-password2" required="" id="id_password2" style="width: 100%; color: whitesmoke; border-left: 0; border-top: 0; border-right: 0; border-bottom: 1px solid #008080; outline: none; background: transparent; ">
+        <i class="far fa-eye" id="togglePassword2" style="margin: -22px 0px 25px 170px; cursor: pointer; position: absolute; color: whitesmoke;"></i>
+    </div>
+    <span asp-validation-for="Confirm"></span>
+
+
+    <label asp-for="Photo"></label>
+    <div>
+        <label class="upload">
+            <small style="color: whitesmoke">Select Photo...</small>
+            <input asp-for="Photo" accept="image/jpeg,image/png" hidden>
+            <img src="/images/photo.jpg">
+        </label>
+    </div>
+    <span asp-validation-for="Photo"></span>
+
+    <br>
+
+    <section>
+        <button id="btn">Insert</button>
+        <button type="reset" id="btn">Reset</button>
+    </section>
+
+    <br>
+
+    <script>
+        const togglePassword = document.querySelector('#togglePassword');
+        const password = document.querySelector('#id_password');
+
+        togglePassword.addEventListener('click', function (e) {
+
+            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+            password.setAttribute('type', type);
+
+            this.classList.toggle('fa-eye-slash');
+        })
+    </script>
+
+    <script>
+        const togglePassword2 = document.querySelector('#togglePassword2');
+        const password2 = document.querySelector('#id_password2');
+
+        togglePassword2.addEventListener('click', function (e) {
+
+            const type = password2.getAttribute('type') === 'password' ? 'text' : 'password';
+            password2.setAttribute('type', type);
+
+            this.classList.toggle('fa-eye-slash');
+        })
+    </script>
+
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+
+            $('#facultyDropdown').change(function () {
+
+                var selectedFaculty = $(this).val();
+
+                updateProgrammeDropdown(selectedFaculty);
+            });
+        });
+
+        function updateProgrammeDropdown(selectedFaculty) {
+            var programmeDropdown = $('#programmeDropdown');
+
+            programmeDropdown.empty();
+
+            switch (selectedFaculty) {
+                case 'FOCS':
+                    programmeDropdown.append('<option value="CS" style="color: black;">Computer Science</option>');
+                    programmeDropdown.append('<option value="IS" style="color: black;">Information Systems</option>');
+                    break;
+                case 'FAFB':
+                    programmeDropdown.append('<option value="AF" style="color: black;">Accounting and Finance</option>');
+                    programmeDropdown.append('<option value="BM" style="color: black;">Business Management</option>');
+                    break;
+                case 'FOBE':
+                    programmeDropdown.append('<option value="BE" style="color: black;">Biomedical Engineering</option>');
+                    programmeDropdown.append('<option value="EE" style="color: black;">Electrical Engineering</option>');
+                    break;
+                default:
+                    break;
+            }
+        }
+    </script>
+
+    <script>
+        $(document).ready(function () {
+            $('input[name="Role"]').change(function () {
+                var selectedRole = $('input[name="Role"]:checked').val();
+
+                toggleFieldsBasedOnRole(selectedRole);
+            });
+
+            $('input[name="Role"]:checked').trigger('change');
+        });
+
+        function toggleFieldsBasedOnRole(selectedRole) {
+            var facultyLabel = $('label[for="Faculty"]');
+            var facultyDropdown = $('#facultyDropdown');
+            var programmeLabel = $('label[for="Programme"]');
+            var programmeDropdown = $('#programmeDropdown');
+            var intakeLabel = $('label[for="IntakeYear"]');
+            var intakeDropdown = $('#intakeDropdown');
+
+            facultyLabel.hide();
+            facultyDropdown.hide();
+            programmeLabel.hide();
+            programmeDropdown.hide();
+            intakeLabel.hide();
+            intakeDropdown.hide();
+
+            if (selectedRole === 'S') {
+                facultyLabel.show();
+                facultyDropdown.show();
+                programmeLabel.show();
+                programmeDropdown.show();
+                intakeLabel.show();
+                intakeDropdown.show();
+            }
+        }
+    </script>
+
+
+</form>
+
+@section foot {
+    <script>
+        $.validator.setDefaults({ ignore: '' });
+    </script>
+}

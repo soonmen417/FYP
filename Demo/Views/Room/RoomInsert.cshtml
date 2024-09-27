@@ -1,0 +1,100 @@
+﻿@model RoomInsertVM
+
+@{
+    ViewBag.Title = "Insert New Room";
+}
+
+@section head {
+    <style>
+
+        footer {
+            display: none;
+        }
+
+        main > h1 {
+            color: whitesmoke;
+        }
+
+        #btn {
+            transition: all .5s ease;
+            width: 85px;
+            border-radius: 30px;
+            color: #008080;
+            font-weight: 600;
+            background-color: #fff;
+            border: 1px solid #008080;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+
+            #btn:hover, #btn:focus {
+                background-color: #008080;
+                color: #fff;
+            }
+
+        .form > label {
+            background-color: transparent;
+        }
+
+        .form > input, textarea, select {
+            width: 100%;
+            color: whitesmoke;
+            border-left: 0;
+            border-top: 0;
+            border-right: 0;
+            border-bottom: 1px solid #008080;
+            outline: none;
+            background: transparent;
+        }
+
+    </style>
+}
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
+
+<form class="form" method="post" enctype="multipart/form-data">
+    <div asp-validation-summary="ModelOnly"></div>
+
+    <label asp-for="RoomId"></label>
+    <input asp-for="RoomId" autofocus data-upper>
+    <span asp-validation-for="RoomId"></span>
+
+
+    <label asp-for="Room_Name"></label>
+    <input asp-for="Room_Name">
+    <span asp-validation-for="Room_Name"></span>
+
+
+    <label asp-for="Room_Description"></label>
+    <div>
+        <textarea input asp-for="Room_Description"></textarea>
+    </div>
+    <span asp-validation-for="Room_Description"></span>
+
+
+    <label asp-for="Room_Type"></label>
+    <div>
+        <select asp-for="Room_Type" class="form-control">
+            <option style="color: black;"></option>
+            <option value="Public" style="color: black;">Public</option>
+            <option value="Private" style="color: black;">Private</option>
+        </select>
+    </div>
+    <span asp-validation-for="Room_Type"></span>
+
+    <br>
+
+    <section>
+        <button id="btn">Insert</button>
+        <button type="reset" id="btn">Reset</button>
+    </section>
+
+    <br>
+
+</form>
+
+@section foot {
+    <script>
+        $.validator.setDefaults({ ignore: '' });
+    </script>
+}
